@@ -133,7 +133,7 @@ public sealed class SettingsView : UserControl, INavigable
             Style = R<Style>("Text.Caption"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0),
             Text = T("To add a language, create a template, translate the values in any text editor and put the file into the languages folder.")
         };
-        body.Children.Add(Section("language", "Language", "", Stack(langs, langButtons, langNote)));
+        body.Children.Add(Section("language", "Language", "", Stack(langs, langButtons, langNote)));
 
         // Monitoring
         var unitSeg = Segmented([("°C", false), ("°F", true)], s.Fahrenheit, v => { s.Fahrenheit = v; Settings.Touch(); });

@@ -302,6 +302,7 @@ internal sealed class BenchCard
         _run.ToolTip = loc.T("Run");
         _run.IsEnabled = !anyRunning;
         _unit.Text = loc.T(_bench.Unit);
+        _unit.Visibility = latest == null ? Visibility.Collapsed : Visibility.Visible;
 
         if (latest == null)
         {

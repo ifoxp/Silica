@@ -981,6 +981,8 @@ UK = {
     "Wear": "Знос",
     "Wi-Fi standard": "Стандарт Wi-Fi",
     "Write errors": "Помилки запису",
+    "Contents": "Зміст",
+    "Created": "Створено",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

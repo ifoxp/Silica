@@ -101,7 +101,7 @@ public sealed class LineChart : FrameworkElement
             dc.DrawText(label, new Point(plot.Left - 8 - label.Width, y - label.Height / 2));
         }
 
-        var seconds = (Window - 1) * _intervalSeconds;
+        var seconds = Window * _intervalSeconds;
         for (var i = 0; i <= 4; i++)
         {
             var x = plot.Left + plot.Width * i / 4;
@@ -220,7 +220,9 @@ public sealed class LineChart : FrameworkElement
         } + (kind is SensorKind.Temperature ? "°" : kind is SensorKind.Load or SensorKind.Control or SensorKind.Level ? "%" : "");
     }
 
-    private static string FormatAgo(double seconds) => seconds >= 120
+    private static string FormatAgo(double seconds) => seconds >= 60 && Math.Abs(seconds / 60 - Math.Round(seconds / 60)) < 0.01
         ? Loc.Instance.F("{0} min", Math.Round(seconds / 60))
-        : Loc.Instance.F("{0} s", Math.Round(seconds));
+        : seconds >= 120
+            ? Loc.Instance.F("{0} min", (seconds / 60).ToString("0.#", CultureInfo.CurrentCulture))
+            : Loc.Instance.F("{0} s", Math.Round(seconds));
 }

@@ -111,7 +111,7 @@ public sealed class StressView : UserControl, INavigable
             var stack = new StackPanel();
             var head = new StackPanel { Orientation = Orientation.Horizontal };
             head.Children.Add(new TextBlock { Style = R<Style>("Icon"), Text = icon, FontSize = 14, Margin = new Thickness(0, 0, 8, 0), Foreground = R<Brush>("Brush.AccentText") });
-            head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T(title) });
+            head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T(title), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, MaxWidth = 140 });
             stack.Children.Add(head);
             stack.Children.Add(new TextBlock { Style = R<Style>("Text.Caption"), Text = loc.T(hint), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, Margin = new Thickness(0, 6, 0, 0) });
             var toggle = new ToggleButton
@@ -247,8 +247,11 @@ public sealed class StressView : UserControl, INavigable
     {
         if (_engine.IsRunning)
         {
+            _lastIterations = _engine.Iterations;
+            _lastErrors = _engine.ErrorCount;
             _engine.Stop();
-            AddLog(Loc.Instance.F("Test stopped after {0}", Fmt.Duration(DateTime.Now - (_engine.StartedAt ?? DateTime.Now))));
+            _runEnd = DateTime.Now;
+            AddLog(Loc.Instance.F("Test stopped after {0}", Fmt.Duration(_runEnd.Value - (_runStart ?? _runEnd.Value))));
             UpdateStatus();
             if (!_visible) OnNavigatedFrom();
             return;
@@ -277,6 +280,8 @@ public sealed class StressView : UserControl, INavigable
             ErrorDialog.Show(Window.GetWindow(this), ex, Loc.Instance.T("The test could not be started."));
             return;
         }
+        _runStart = DateTime.Now;
+        _runEnd = null;
         AddLog(Loc.Instance.F("Test started: {0}", string.Join(", ", Components.Where(c => components.HasFlag(c.Component)).Select(c => Loc.Instance.T(c.Title)))));
         _subscription ??= SensorHub.Shared.Subscribe();
         _timer.Start();
@@ -296,7 +301,7 @@ public sealed class StressView : UserControl, INavigable
     {
         var k = SensorHub.Shared.Key;
         if (k.CpuClock?.Value is not { } clock || k.CpuLoad?.Value is not { } load) return;
-        var elapsed = DateTime.Now - (_engine.StartedAt ?? DateTime.Now);
+        var elapsed = DateTime.Now - (_runStart ?? DateTime.Now);
         if (load < 85) { _lowSince = default; return; }
         if (elapsed < TimeSpan.FromSeconds(20)) { _peakClock = Math.Max(_peakClock, clock); return; }
         if (_peakClock <= 0 || clock > _peakClock * 0.85)
@@ -325,24 +330,24 @@ public sealed class StressView : UserControl, INavigable
         _start.Style = (Style)app.FindResource(running ? "Button.Danger" : "Button.Accent");
         foreach (var t in _toggles.Values) t.IsEnabled = !running;
 
-        var errors = _engine.ErrorCount;
+        var started = _runStart != null;
+        var errors = running ? _engine.ErrorCount : _lastErrors;
+        var iterations = running ? _engine.Iterations : _lastIterations;
         _state.Text = running
             ? errors > 0 ? loc.T("Running, errors found") : loc.T("Running, no errors so far")
-            : _engine.StartedAt == null ? loc.T("Ready") : errors > 0 ? loc.T("Stopped, errors were found") : loc.T("Stopped, no errors");
-        _stateDot.Background = (Brush)app.FindResource(errors > 0 ? "Brush.Danger" : running ? "Brush.Success" : "Brush.Text3");
+            : !started ? loc.T("Ready") : errors > 0 ? loc.T("Stopped, errors were found") : loc.T("Stopped, no errors");
+        _stateDot.Background = (Brush)app.FindResource(errors > 0 ? "Brush.Danger" : running ? "Brush.Success" : started ? "Brush.Accent" : "Brush.Text3");
 
-        _elapsed.Text = _engine.StartedAt is { } start && (running || _log.Count > 0)
-            ? Fmt.Duration((running ? DateTime.Now : _stoppedAt ?? DateTime.Now) - start)
-            : "—";
-        if (running) _stoppedAt = null; else _stoppedAt ??= DateTime.Now;
-        _iterations.Text = _engine.StartedAt == null ? "—" : _engine.Iterations.ToString("N0", CultureInfo.CurrentCulture);
-        _errors.Text = _engine.StartedAt == null ? "—" : errors.ToString("N0", CultureInfo.CurrentCulture);
+        _elapsed.Text = _runStart is { } start ? Fmt.Duration((_runEnd ?? DateTime.Now) - start) : "—";
+        _iterations.Text = started ? iterations.ToString("N0", CultureInfo.CurrentCulture) : "—";
+        _errors.Text = started ? errors.ToString("N0", CultureInfo.CurrentCulture) : "—";
         _errors.Foreground = (Brush)app.FindResource(errors > 0 ? "Brush.Danger" : "Brush.Text");
-        _throttle.Text = _engine.StartedAt == null ? "—" : _throttleEvents == 0 ? loc.T("Not detected") : loc.N(_throttleEvents, "{0} times");
+        _throttle.Text = !started ? "—" : _throttleEvents == 0 ? loc.T("Not detected") : loc.N(_throttleEvents, "{0} times");
         _throttle.Foreground = (Brush)app.FindResource(_throttleEvents > 0 ? "Brush.Warning" : "Brush.Text");
     }
 
-    private DateTime? _stoppedAt;
+    private DateTime? _runStart, _runEnd;
+    private long _lastIterations, _lastErrors;
 
     private void AddLog(string message, bool error = false)
     {

@@ -6,7 +6,7 @@ using Silica.Core.Model;
 
 namespace Silica.Core.Report;
 
-public sealed record ReportMeta(string AppName, string AppVersion, string ComputerName, DateTime Created);
+public sealed record ReportMeta(string AppName, string AppVersion, string ComputerName, DateTime Created, string Language = "en");
 
 public static class ReportExporter
 {

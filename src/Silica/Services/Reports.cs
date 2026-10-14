@@ -17,7 +17,7 @@ public static class Reports
     public static string Version { get; } =
         Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "1.0";
 
-    public static ReportMeta Meta() => new("Silica", Version, Environment.MachineName, DateTime.Now);
+    public static ReportMeta Meta() => new("Silica", Version, Environment.MachineName, DateTime.Now, Loc.Instance.Current.Code);
 
     public static string Render(IReadOnlyList<InfoPage> pages, ReportFormat format) => format switch
     {

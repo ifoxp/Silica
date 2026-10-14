@@ -56,18 +56,7 @@ internal static partial class HtmlReport
           padding: 28px 18px; border-right: 1px solid var(--border); background: var(--surface);
         }
         .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 24px; }
-        .mark {
-          width: 34px; height: 34px; border-radius: 10px; flex: none; position: relative;
-          background: linear-gradient(135deg, #4f8cff, #7b5cff);
-        }
-        .mark::before {
-          content: ""; position: absolute; left: 8px; top: 8px; width: 13px; height: 13px; border-radius: 50%;
-          border: 2.5px solid #fff;
-        }
-        .mark::after {
-          content: ""; position: absolute; left: 20px; top: 21px; width: 7px; height: 2.5px; border-radius: 2px;
-          background: #fff; transform: rotate(45deg); transform-origin: left center;
-        }
+        .mark { width: 30px; height: 30px; flex: none; display: block; }
         .brand-name { font-weight: 650; font-size: 15px; letter-spacing: 0.01em; }
         .brand-ver { color: var(--muted); font-size: 12px; }
         .toc-title {
@@ -177,13 +166,13 @@ internal static partial class HtmlReport
     {
         var sb = new StringBuilder(64 * 1024);
         var created = ReportExporter.FormatCreated(meta.Created);
-        sb.Append("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n")
+        sb.Append("<!DOCTYPE html>\n<html lang=\"").Append(E(meta.Language)).Append("\">\n<head>\n<meta charset=\"utf-8\">\n")
             .Append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n")
             .Append("<meta name=\"generator\" content=\"").Append(E($"{meta.AppName} {meta.AppVersion}")).Append("\">\n")
             .Append("<title>").Append(E($"{meta.ComputerName} - {t["Report"]} - {meta.AppName}")).Append("</title>\n")
             .Append("<style>\n").Append(Css).Append("</style>\n</head>\n<body>\n<div class=\"layout\">\n");
 
-        sb.Append("<nav class=\"toc\">\n<div class=\"brand\"><div class=\"mark\"></div><div><div class=\"brand-name\">")
+        sb.Append("<nav class=\"toc\">\n<div class=\"brand\"><svg class=\"mark\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><defs><linearGradient id=\"g1\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#B9F0FF\"/><stop offset=\"1\" stop-color=\"#7CCBFF\"/></linearGradient><linearGradient id=\"g2\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#73BEFF\"/><stop offset=\"1\" stop-color=\"#4F8DFF\"/></linearGradient><linearGradient id=\"g3\" x1=\"0\" y1=\"0\" x2=\"0.4\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5A9BFF\"/><stop offset=\"1\" stop-color=\"#3A63E8\"/></linearGradient><linearGradient id=\"g4\" x1=\"0\" y1=\"0\" x2=\"0.6\" y2=\"1\"><stop offset=\"0\" stop-color=\"#3557DA\"/><stop offset=\"1\" stop-color=\"#5A3FD1\"/></linearGradient></defs><polygon points=\"128,4 50,96 128,122\" fill=\"url(#g1)\"/><polygon points=\"128,4 128,122 206,96\" fill=\"url(#g2)\"/><polygon points=\"50,96 128,122 128,252 50,200\" fill=\"url(#g3)\"/><polygon points=\"128,122 206,96 206,200 128,252\" fill=\"url(#g4)\"/></svg><div><div class=\"brand-name\">")
             .Append(E(meta.AppName)).Append("</div><div class=\"brand-ver\">").Append(E(meta.AppVersion)).Append("</div></div></div>\n")
             .Append("<div class=\"toc-title\">").Append(E(t["Contents"])).Append("</div>\n<ol>\n");
         foreach (var page in pages)

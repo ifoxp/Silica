@@ -83,8 +83,8 @@ public sealed class DiskBenchView : UserControl, INavigable
         header.Children.Add(titles);
 
         _size.Items.Clear();
-        foreach (var (text, bytes) in new[] { ("256 MB", 256L << 20), ("1 GB", 1L << 30), ("4 GB", 4L << 30) })
-            _size.Items.Add(new ComboBoxItem { Content = text, Tag = bytes });
+        foreach (var bytes in new[] { 256L << 20, 1L << 30, 4L << 30 })
+            _size.Items.Add(new ComboBoxItem { Content = Fmt.Bytes(bytes, 0), Tag = bytes });
         _size.SelectedIndex = 1;
 
         _startIcon.Style = (Style)app.FindResource("Icon");
@@ -185,11 +185,11 @@ public sealed class DiskBenchView : UserControl, INavigable
     {
         var app = Application.Current;
         var value = new TextBlock { Style = (Style)app.FindResource("Text.Metric"), Text = "—" };
-        var unit = new TextBlock { Style = (Style)app.FindResource("Text.Secondary"), Text = "MB/s", Margin = new Thickness(6, 0, 0, 5), VerticalAlignment = VerticalAlignment.Bottom };
+        var unit = new TextBlock { Style = (Style)app.FindResource("Text.Secondary"), Text = Fmt.Unit("MB") + Fmt.Unit("/s"), Margin = new Thickness(6, 0, 0, 5), VerticalAlignment = VerticalAlignment.Bottom };
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(value);
         row.Children.Add(unit);
-        var detail = new TextBlock { Style = (Style)app.FindResource("Text.Caption"), Margin = new Thickness(0, 4, 0, 0) };
+        var detail = new TextBlock { Style = (Style)app.FindResource("Text.Caption"), Margin = new Thickness(0, 4, 0, 0), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None };
         var stack = new StackPanel();
         stack.Children.Add(row);
         stack.Children.Add(detail);

@@ -107,7 +107,9 @@
                         </StackPanel>
                     </Border>
                 </Grid>
-                <StackPanel x:Name="Charts" Margin="0,8,0,0" />
+                <ScrollViewer x:Name="ChartScroll" VerticalScrollBarVisibility="Auto" Focusable="False">
+                    <StackPanel x:Name="Charts" Margin="0,8,0,0" />
+                </ScrollViewer>
                 <TextBlock x:Name="ChartHint" Style="{StaticResource Text.Secondary}" Margin="0,4,0,8"
                            Text="{l:T 'Click any sensor below to draw it here. Sensors of the same kind share one chart.'}" TextWrapping="Wrap" />
             </StackPanel>

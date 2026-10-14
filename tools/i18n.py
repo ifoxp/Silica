@@ -49,7 +49,7 @@ IGNORE = {
 }
 
 # Used only through computed keys, so the scanner cannot see them.
-EXTRA = {"now", "Stress test started", "{0} s"}
+EXTRA = {"now", "Stress test started", "{0} s", "Contents", "Created"}
 
 # Unit symbols go through Fmt.Unit, so they are keys too.
 UNITS = {"B", "KB", "MB", "GB", "TB", "PB", "MHz", "GHz", "bps", "Kbps", "Mbps", "Gbps", "Tbps", "/s", "d",

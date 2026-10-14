@@ -54,7 +54,7 @@ public sealed class ReportView : UserControl, INavigable
         header.Children.Add(titles);
 
         // Format and actions
-        var formats = new StackPanel { Orientation = Orientation.Horizontal };
+        var formats = new UniformGrid { Columns = 2 };
         foreach (var (f, label) in new[] { (ReportFormat.Html, "Web page"), (ReportFormat.Text, "Plain text"), (ReportFormat.Markdown, "Markdown"), (ReportFormat.Json, "JSON") })
         {
             var rb = new RadioButton { Style = R<Style>("Segment"), GroupName = "ReportFormat", Content = loc.T(label), IsChecked = _format == f };
@@ -72,7 +72,7 @@ public sealed class ReportView : UserControl, INavigable
 
         var side = new StackPanel();
         side.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T("Format"), Margin = new Thickness(0, 0, 0, 10) });
-        side.Children.Add(new Border { Style = R<Style>("SegmentHost"), Child = formats });
+        side.Children.Add(new Border { Style = R<Style>("SegmentHost"), Child = formats, HorizontalAlignment = HorizontalAlignment.Stretch });
         side.Children.Add(new TextBlock
         {
             Style = R<Style>("Text.Caption"), Margin = new Thickness(0, 10, 0, 0), TextWrapping = TextWrapping.Wrap,

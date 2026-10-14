@@ -31,6 +31,8 @@ public partial class SensorsView : UserControl, INavigable
         SensorHub.Shared.DevicesChanged += () => Dispatcher.BeginInvoke(() => _dirty = true);
         Loc.Instance.LanguageChanged += () => { _dirty = true; Tick(); };
         Monitoring.LoggingChanged += UpdateRecordButton;
+        // Charts never take more than about half of the page, so the sensor list stays usable on small windows.
+        SizeChanged += (_, _) => ChartScroll.MaxHeight = Math.Max(160, ActualHeight * 0.42);
     }
 
     public void OnNavigatedTo(string? target)

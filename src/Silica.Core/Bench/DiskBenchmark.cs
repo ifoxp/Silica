@@ -43,7 +43,7 @@ public sealed class DiskBenchmark
         try
         {
             using (var handle = File.OpenHandle(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None,
-                       NoBuffering | FileOptions.WriteThrough | FileOptions.Asynchronous | FileOptions.DeleteOnClose))
+                       NoBuffering | FileOptions.Asynchronous | FileOptions.DeleteOnClose))
             {
                 Prepare(handle, size, token, f => progress?.Report((f * PrepShare, null)));
                 for (var i = 0; i < Specs.Length; i++)
