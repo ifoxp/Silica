@@ -1,0 +1,248 @@
+<UserControl x:Class="Silica.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:Silica.Localization"
+             xmlns:c="clr-namespace:Silica.Controls">
+    <UserControl.Resources>
+        <Style x:Key="MetricCaption" TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}" />
+        <Style x:Key="MetricValue" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+        </Style>
+        <Style x:Key="CardHeaderIcon" TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.AccentText}" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="28,22,28,28">
+            <!-- Identity -->
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock x:Name="MachineName" Style="{StaticResource Text.Display}" />
+                    <TextBlock x:Name="MachineLine" Style="{StaticResource Text.Secondary}" Margin="0,4,0,0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Margin="0,0,8,0" Click="OnGo" Tag="report">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8A5;" Style="{StaticResource Icon}" FontSize="13" Margin="0,0,8,0" />
+                            <TextBlock Text="{l:T Report}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,0,8,0" Click="OnGo" Tag="benchmarks">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEC4A;" Style="{StaticResource Icon}" FontSize="13" Margin="0,0,8,0" />
+                            <TextBlock Text="{l:T Benchmarks}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Click="OnGo" Tag="stress">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE945;" Style="{StaticResource Icon}" FontSize="13" Margin="0,0,8,0" />
+                            <TextBlock Text="{l:T 'Stability test'}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- CPU + GPU -->
+            <Grid x:Name="TopRow">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="cpu">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE950;" Style="{StaticResource CardHeaderIcon}" />
+                                <TextBlock Text="{l:T Processor, Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock x:Name="CpuName" Style="{StaticResource Text.Section}" FontSize="15" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Width="124" Height="124">
+                                <c:RingGauge x:Name="CpuRing" Thickness="9" />
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,4,0,0">
+                                    <TextBlock x:Name="CpuLoad" Style="{StaticResource Text.Metric}" HorizontalAlignment="Center" Text="—" />
+                                    <TextBlock Text="{l:T Load}" Style="{StaticResource Text.Caption}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Grid>
+                            <UniformGrid Grid.Column="1" Columns="2" Rows="2" Margin="28,4,0,0" VerticalAlignment="Center">
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="{l:T Temperature}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="CpuTemp" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="{l:T Clock}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="CpuClock" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="{l:T Power}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="CpuPower" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="{l:T 'Cores / threads'}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="CpuCores" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+                        <c:Sparkline x:Name="CpuSpark" Grid.Row="2" Height="44" Margin="0,14,0,0" FixedMax="100" Samples="90" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="gpu">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xF211;" Style="{StaticResource CardHeaderIcon}" />
+                                <TextBlock Text="{l:T Graphics, Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock x:Name="GpuName" Style="{StaticResource Text.Section}" FontSize="15" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Width="124" Height="124">
+                                <c:RingGauge x:Name="GpuRing" Thickness="9" />
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,4,0,0">
+                                    <TextBlock x:Name="GpuLoad" Style="{StaticResource Text.Metric}" HorizontalAlignment="Center" Text="—" />
+                                    <TextBlock Text="{l:T Load}" Style="{StaticResource Text.Caption}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Grid>
+                            <UniformGrid Grid.Column="1" Columns="2" Rows="2" Margin="28,4,0,0" VerticalAlignment="Center">
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="{l:T Temperature}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="GpuTemp" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="{l:T Clock}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="GpuClock" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="{l:T Power}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="GpuPower" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="{l:T 'Video memory'}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock x:Name="GpuMemory" Style="{StaticResource MetricValue}" Text="—" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+                        <c:Sparkline x:Name="GpuSpark" Grid.Row="2" Height="44" Margin="0,14,0,0" FixedMax="100" Samples="90" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Memory, storage, network -->
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="memory">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE964;" Style="{StaticResource CardHeaderIcon}" />
+                            <TextBlock Text="{l:T Memory, Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <TextBlock x:Name="RamUsed" Style="{StaticResource Text.Metric}" Text="—" />
+                            <TextBlock x:Name="RamTotal" Style="{StaticResource Text.Secondary}" FontSize="15" VerticalAlignment="Bottom" Margin="6,0,0,4" />
+                        </StackPanel>
+                        <ProgressBar x:Name="RamBar" Maximum="100" Margin="0,12,0,0" />
+                        <Grid Margin="0,10,0,0">
+                            <TextBlock x:Name="RamModules" Style="{StaticResource Text.Caption}" />
+                            <TextBlock x:Name="RamPercent" Style="{StaticResource Text.Caption}" HorizontalAlignment="Right" />
+                        </Grid>
+                        <c:Sparkline x:Name="RamSpark" Height="40" Margin="0,12,0,0" FixedMax="100" Samples="90" Color="{DynamicResource C.Series2}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="storage">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEDA2;" Style="{StaticResource CardHeaderIcon}" />
+                            <TextBlock Text="{l:T Storage, Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ItemsControl x:Name="Volumes" Margin="0,14,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="network">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE968;" Style="{StaticResource CardHeaderIcon}" />
+                            <TextBlock Text="{l:T Network, Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <UniformGrid Columns="2" Margin="0,16,0,0">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE896;" Style="{StaticResource Icon}" FontSize="11" Foreground="{DynamicResource Brush.AccentText}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{l:T Download}" Style="{StaticResource MetricCaption}" />
+                                </StackPanel>
+                                <TextBlock x:Name="NetDown" Style="{StaticResource MetricValue}" Text="—" />
+                            </StackPanel>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE898;" Style="{StaticResource Icon}" FontSize="11" Foreground="{DynamicResource Brush.Warning}" Margin="0,0,6,0" />
+                                    <TextBlock Text="{l:T Upload}" Style="{StaticResource MetricCaption}" />
+                                </StackPanel>
+                                <TextBlock x:Name="NetUp" Style="{StaticResource MetricValue}" Text="—" />
+                            </StackPanel>
+                        </UniformGrid>
+                        <Grid Height="52" Margin="0,14,0,0">
+                            <c:Sparkline x:Name="NetDownSpark" Samples="90" />
+                            <c:Sparkline x:Name="NetUpSpark" Samples="90" Fill="False" Color="{DynamicResource C.Series3}" />
+                        </Grid>
+                        <TextBlock x:Name="NetAdapter" Style="{StaticResource Text.Caption}" Margin="0,10,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Temperatures and fans -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="sensors">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9CA;" Style="{StaticResource CardHeaderIcon}" />
+                            <TextBlock Text="{l:T 'Temperatures and fans', Casing=Upper}" Style="{StaticResource Text.Overline}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{l:T 'All sensors'}" Style="{StaticResource Text.Caption}" Foreground="{DynamicResource Brush.AccentText}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <WrapPanel x:Name="Thermals" Margin="0,14,0,0" />
+                    <TextBlock x:Name="ThermalsEmpty" Style="{StaticResource Text.Secondary}" Margin="0,14,0,0" TextWrapping="Wrap" Visibility="Collapsed" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

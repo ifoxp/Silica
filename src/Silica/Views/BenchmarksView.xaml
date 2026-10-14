@@ -1,0 +1,43 @@
+<UserControl x:Class="Silica.Views.BenchmarksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:Silica.Localization">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Margin="28,22,28,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
+                <TextBlock Text="&#xEC4A;" Style="{StaticResource Icon}" FontSize="18" Foreground="{DynamicResource Brush.AccentText}" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{l:T Benchmarks}" Style="{StaticResource Text.Title}" />
+                <TextBlock x:Name="Subtitle" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Style="{StaticResource SegmentHost}" Margin="0,0,10,0">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="AllThreads" Style="{StaticResource Segment}" GroupName="Threads" IsChecked="True" Content="{l:T 'All threads'}" />
+                        <RadioButton x:Name="OneThread" Style="{StaticResource Segment}" GroupName="Threads" Content="{l:T 'One thread'}" />
+                    </StackPanel>
+                </Border>
+                <Button x:Name="MoreButton" Style="{StaticResource Button.Icon}" Content="&#xE712;" Click="OnMore" ToolTip="{l:T 'Results and comparison'}" Margin="0,0,6,0" />
+                <Button x:Name="RunAllButton" Style="{StaticResource Button.Accent}" Click="OnRunAll">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="RunAllIcon" Text="&#xE768;" Style="{StaticResource Icon}" FontSize="12" Foreground="{DynamicResource Brush.OnAccent}" Margin="0,0,8,0" />
+                        <TextBlock x:Name="RunAllText" Text="{l:T 'Run all'}" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Focusable="False">
+            <StackPanel x:Name="Body" Margin="28,0,28,28" />
+        </ScrollViewer>
+    </Grid>
+</UserControl>

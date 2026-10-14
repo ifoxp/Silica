@@ -1,0 +1,153 @@
+<UserControl x:Class="Silica.Views.SensorsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:Silica.Localization"
+             xmlns:c="clr-namespace:Silica.Controls"
+             xmlns:v="clr-namespace:Silica.Views">
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type v:DeviceRow}">
+            <Border Padding="10,0" Height="40" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="OnDeviceClick">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="30" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Chevron}" Style="{StaticResource Icon}" FontSize="9" Foreground="{DynamicResource Brush.Text3}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Icon}" Style="{StaticResource Icon}" FontSize="14" Foreground="{DynamicResource Brush.AccentText}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Name}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" Margin="4,0,0,0" />
+                    <TextBlock Grid.Column="3" Text="{Binding Count}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type v:SensorRow}">
+            <Border x:Name="Bd" Height="34" Padding="10,0" CornerRadius="6" Background="Transparent" MouseLeftButtonUp="OnSensorClick">
+                <Border.ContextMenu>
+                    <ContextMenu Opened="OnSensorMenu" />
+                </Border.ContextMenu>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="30" />
+                        <ColumnDefinition Width="*" MinWidth="160" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="110" />
+                    </Grid.ColumnDefinitions>
+                    <Ellipse Grid.Column="1" Width="9" Height="9" Fill="{Binding Dot}" HorizontalAlignment="Center" />
+                    <Ellipse Grid.Column="1" Width="9" Height="9" Stroke="{DynamicResource Brush.StrokeStrong}" StrokeThickness="1.2" HorizontalAlignment="Center"
+                             Visibility="{Binding Pinned, Converter={StaticResource HiddenWhen}}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Name}" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="4,0,12,0" />
+                    <TextBlock Grid.Column="3" Text="{Binding Value}" Style="{StaticResource Text.Base}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="{Binding Min}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="5" Text="{Binding Max}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="6" Text="{Binding Avg}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+                    <c:Sparkline Grid.Column="7" Height="20" Samples="60" Reading="{Binding Reading}" Version="{Binding Version}" Fill="False" Margin="0,0,4,0" />
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="28,22,28,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
+                <TextBlock Text="&#xE9D9;" Style="{StaticResource Icon}" FontSize="18" Foreground="{DynamicResource Brush.AccentText}" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{l:T Sensors}" Style="{StaticResource Text.Title}" />
+                <TextBlock x:Name="Subtitle" Style="{StaticResource Text.Caption}" Margin="0,2,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <Grid Width="220" Margin="0,0,8,0">
+                    <TextBox x:Name="FilterBox" Tag="{l:T 'Filter sensors'}" Padding="30,6,10,6" TextChanged="OnFilterChanged" />
+                    <TextBlock Text="&#xE71C;" Style="{StaticResource Icon}" FontSize="12" HorizontalAlignment="Left" Margin="11,0,0,0" IsHitTestVisible="False" />
+                </Grid>
+                <ToggleButton x:Name="RecordButton" Style="{StaticResource Chip}" Margin="0,0,8,0" Padding="12,6" Click="OnRecord" ToolTip="{l:T 'Write all sensor values to a CSV file'}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse x:Name="RecordDot" Width="8" Height="8" Fill="{DynamicResource Brush.Danger}" Margin="0,0,8,0" />
+                        <TextBlock x:Name="RecordText" Text="{l:T Record}" />
+                    </StackPanel>
+                </ToggleButton>
+                <Button Style="{StaticResource Button.Icon}" Content="&#xE777;" Click="OnReset" ToolTip="{l:T 'Reset minimum, maximum and average'}" />
+            </StackPanel>
+        </Grid>
+
+        <WrapPanel x:Name="KindChips" Grid.Row="1" Margin="28,0,28,8" />
+
+        <Border x:Name="ChartPanel" Grid.Row="2" Style="{StaticResource Card}" Margin="28,4,28,12" Padding="16,12,16,8">
+            <StackPanel>
+                <Grid>
+                    <WrapPanel x:Name="Legend" />
+                    <Border Style="{StaticResource SegmentHost}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Style="{StaticResource Segment}" GroupName="Window" Tag="120" Checked="OnWindow" IsChecked="True" Content="{l:T '2 min'}" />
+                            <RadioButton Style="{StaticResource Segment}" GroupName="Window" Tag="300" Checked="OnWindow" Content="{l:T '5 min'}" />
+                            <RadioButton Style="{StaticResource Segment}" GroupName="Window" Tag="600" Checked="OnWindow" Content="{l:T '10 min'}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <StackPanel x:Name="Charts" Margin="0,8,0,0" />
+                <TextBlock x:Name="ChartHint" Style="{StaticResource Text.Secondary}" Margin="0,4,0,8"
+                           Text="{l:T 'Click any sensor below to draw it here. Sensors of the same kind share one chart.'}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="28,0,28,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Margin="10,0,10,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52" />
+                    <ColumnDefinition Width="*" MinWidth="160" />
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="110" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="1" Text="{l:T Sensor}" Style="{StaticResource Text.Overline}" Margin="4,0,0,0" />
+                <TextBlock Grid.Column="2" Text="{l:T Current}" Style="{StaticResource Text.Overline}" />
+                <TextBlock Grid.Column="3" Text="{l:T Minimum}" Style="{StaticResource Text.Overline}" />
+                <TextBlock Grid.Column="4" Text="{l:T Maximum}" Style="{StaticResource Text.Overline}" />
+                <TextBlock Grid.Column="5" Text="{l:T Average}" Style="{StaticResource Text.Overline}" />
+                <TextBlock Grid.Column="6" Text="{l:T History}" Style="{StaticResource Text.Overline}" />
+            </Grid>
+            <ListBox x:Name="List" Grid.Row="1" Style="{StaticResource BareList}" VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Pixel" ScrollViewer.CanContentScroll="True">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+            <StackPanel x:Name="EmptyState" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,0,0,60">
+                <TextBlock Text="&#xE9D9;" Style="{StaticResource Icon}" FontSize="34" Foreground="{DynamicResource Brush.Text3}" />
+                <TextBlock x:Name="EmptyTitle" Style="{StaticResource Text.Section}" HorizontalAlignment="Center" Margin="0,14,0,4" />
+                <TextBlock x:Name="EmptyText" Style="{StaticResource Text.Secondary}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="440" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
