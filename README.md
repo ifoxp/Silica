@@ -60,7 +60,8 @@ dotnet build Silica.sln                 # debug build
 Command line:
 
 ```powershell
-Silica.exe --report report.html         # write a full report without opening a window (.html, .txt, .md, .json)
+Silica.exe --report report.html         # write a report without opening a window (.html, .txt, .md, .json);
+                                        # run it from an administrator terminal for drive health and TPM data
 Silica.exe --lang en                    # start in a given language
 ```
 
