@@ -14,7 +14,7 @@
     <Version>1.0.0</Version>
     <Product>Silica</Product>
     <Description>System information, sensors and benchmarks</Description>
-    <Copyright>Copyright © 2026 Silica contributors</Copyright>
+    <Copyright>Copyright © 2026 Dmytro Chekaliuk</Copyright>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
