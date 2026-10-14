@@ -1,0 +1,58 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="Silica"
+           Manufacturer="Silica"
+           Version="$(Version)"
+           UpgradeCode="7d3c8b8e-4a51-4e0e-9a5c-5b1f2c6d9e41"
+           Scope="perMachine"
+           Compressed="yes"
+           Language="!(loc.Language)">
+
+    <SummaryInformation Description="Silica" />
+    <MajorUpgrade DowngradeErrorMessage="!(loc.Downgrade)" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="SilicaIcon" SourceFile="..\src\Silica\Assets\Silica.ico" />
+    <Property Id="ARPPRODUCTICON" Value="SilicaIcon" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Silica" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Bitness="always64">
+        <File Id="SilicaExe" Source="$(PublishDir)\Silica.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Silica" Description="!(loc.ShortcutDescription)"
+                    WorkingDirectory="INSTALLFOLDER" Icon="SilicaIcon" Advertise="yes" />
+        </File>
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="Main" Title="Silica" AllowAbsent="no">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+
+    <!-- "Start with Windows" creates a scheduled task; remove it together with the program. -->
+    <SetProperty Id="RemoveStartupTask" Value="&quot;[System64Folder]schtasks.exe&quot; /Delete /TN Silica /F"
+                 Before="RemoveStartupTask" Sequence="execute" />
+    <CustomAction Id="RemoveStartupTask" DllEntry="WixQuietExec" BinaryRef="Wix4UtilCA_X64"
+                  Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+      <Custom Action="RemoveStartupTask" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+    </InstallExecuteSequence>
+
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.LaunchApp)" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#SilicaExe]" />
+    <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" BinaryRef="Wix4UtilCA_X64" Impersonate="yes" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
+  </Package>
+</Wix>

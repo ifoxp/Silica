@@ -28,6 +28,7 @@ public static class SearchService
         public string? Target { get; init; }
         public bool TranslateTitle { get; init; } = true;
         public required string[] Tokens { get; init; }
+        public required string[] ContextTokens { get; init; }
         public required string[] Phrases { get; init; }
     }
 
@@ -113,9 +114,16 @@ public static class SearchService
         }
 
         var perPage = new Dictionary<string, int>();
+        var perDevice = new Dictionary<string, int>();
         var hits = new List<SearchHit>();
         foreach (var (e, score) in scored.OrderByDescending(s => s.Score).ThenBy(s => s.Entry.Kind))
         {
+            if (e.Kind == SearchKind.Sensor)
+            {
+                perDevice.TryGetValue(e.SubtitleKey ?? "", out var d);
+                if (d >= 3) continue;
+                perDevice[e.SubtitleKey ?? ""] = d + 1;
+            }
             if (e.Kind is SearchKind.Info or SearchKind.Row)
             {
                 perPage.TryGetValue(e.NavId, out var n);
@@ -157,6 +165,10 @@ public static class SearchService
                 var s = TextMatch.TokenScore(qt, t);
                 if (s > best) { best = s; if (s >= 1) break; }
             }
+            // Matching only the device or page name is weaker than matching the entry itself.
+            if (best < 1)
+                foreach (var t in e.ContextTokens)
+                    best = Math.Max(best, TextMatch.TokenScore(qt, t) * 0.8);
             if (best == 0) return 0;
             sum += best;
         }
@@ -216,7 +228,7 @@ public static class SearchService
         foreach (var s in SensorHub.Shared.AllSensors)
         {
             list.Add(Make(SearchKind.Sensor, s.Name, null, s.Device.Name, null, "", "sensors", s.Id, true,
-                Variants(s.Name).Append(s.Device.Name).Append(s.Kind.ToString())));
+                Variants(s.Name), [s.Device.Name, s.Kind.ToString()]));
         }
         lock (Gate) _sensors = list;
     }
@@ -235,9 +247,9 @@ public static class SearchService
                     foreach (var item in pb.Items)
                     {
                         var value = item.LocalizeValue ? Loc.Instance.T(item.Value) : item.Value;
-                        var terms = Variants(item.Label).Append(item.Value).Concat(item.LocalizeValue ? Variants(item.Value) : []).Concat(blockTerms);
+                        var terms = Variants(item.Label).Append(item.Value).Concat(item.LocalizeValue ? Variants(item.Value) : []);
                         list.Add(Make(SearchKind.Info, item.Label, Shorten(value), page.Title, block.LocalizeTitle ? block.Title : null,
-                            provider.Icon, page.Id, item.Label, true, terms));
+                            provider.Icon, page.Id, item.Label, true, terms, blockTerms));
                     }
                     break;
                 case TableBlock tb:
@@ -246,7 +258,7 @@ public static class SearchService
                         var first = row.FirstOrDefault(c => c.Length > 0) ?? "";
                         if (first.Length == 0) continue;
                         list.Add(Make(SearchKind.Row, first, null, page.Title, block.LocalizeTitle ? block.Title : null,
-                            provider.Icon, page.Id, first, false, row.Concat(blockTerms)));
+                            provider.Icon, page.Id, first, false, row, blockTerms));
                     }
                     break;
             }
@@ -267,10 +279,23 @@ public static class SearchService
     }
 
     private static Entry Make(SearchKind kind, string titleKey, string? value, string? subtitle, string? subtitle2, string icon,
-        string navId, string? target, bool translateTitle, IEnumerable<string> terms)
+        string navId, string? target, bool translateTitle, IEnumerable<string> terms, IEnumerable<string>? context = null)
+    {
+        var phrases = new List<string>();
+        var tokens = Tokenize(terms, phrases);
+        var contextTokens = context == null ? [] : Tokenize(context, phrases);
+        contextTokens.ExceptWith(tokens);
+        return new Entry
+        {
+            Kind = kind, TitleKey = titleKey, Value = value, SubtitleKey = subtitle, SubtitleKey2 = subtitle2, Icon = icon,
+            NavId = navId, Target = target, TranslateTitle = translateTitle,
+            Tokens = [.. tokens], ContextTokens = [.. contextTokens], Phrases = [.. phrases]
+        };
+    }
+
+    private static HashSet<string> Tokenize(IEnumerable<string> terms, List<string> phrases)
     {
         var tokens = new HashSet<string>();
-        var phrases = new List<string>();
         foreach (var term in terms)
         {
             var n = TextMatch.Normalize(term);
@@ -282,11 +307,7 @@ public static class SearchService
             phrases.Add(latin);
             foreach (var t in latin.Split(' ')) tokens.Add(t);
         }
-        return new Entry
-        {
-            Kind = kind, TitleKey = titleKey, Value = value, SubtitleKey = subtitle, SubtitleKey2 = subtitle2, Icon = icon,
-            NavId = navId, Target = target, TranslateTitle = translateTitle, Tokens = [.. tokens], Phrases = [.. phrases]
-        };
+        return tokens;
     }
 
     private static string Shorten(string s) => s.Length > 90 ? s[..87] + "..." : s;

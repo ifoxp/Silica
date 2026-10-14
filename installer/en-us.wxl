@@ -1,0 +1,6 @@
+<WixLocalization Culture="en-US" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Language" Value="1033" />
+  <String Id="Downgrade" Value="A newer version of Silica is already installed." />
+  <String Id="ShortcutDescription" Value="System information, sensors and benchmarks" />
+  <String Id="LaunchApp" Value="Start Silica" />
+</WixLocalization>

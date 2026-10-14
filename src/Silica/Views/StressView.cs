@@ -109,14 +109,16 @@ public sealed class StressView : UserControl, INavigable
         foreach (var (component, title, hint, icon) in Components)
         {
             var stack = new StackPanel();
-            var head = new StackPanel { Orientation = Orientation.Horizontal };
-            head.Children.Add(new TextBlock { Style = R<Style>("Icon"), Text = icon, FontSize = 14, Margin = new Thickness(0, 0, 8, 0), Foreground = R<Brush>("Brush.AccentText") });
-            head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T(title), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, MaxWidth = 140 });
+            var head = new DockPanel();
+            var glyph = new TextBlock { Style = R<Style>("Icon"), Text = icon, FontSize = 14, Margin = new Thickness(0, 1, 8, 0), Foreground = R<Brush>("Brush.AccentText"), VerticalAlignment = VerticalAlignment.Top };
+            DockPanel.SetDock(glyph, Dock.Left);
+            head.Children.Add(glyph);
+            head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T(title), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None });
             stack.Children.Add(head);
             stack.Children.Add(new TextBlock { Style = R<Style>("Text.Caption"), Text = loc.T(hint), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, Margin = new Thickness(0, 6, 0, 0) });
             var toggle = new ToggleButton
             {
-                Style = R<Style>("Chip"), Content = stack, HorizontalContentAlignment = HorizontalAlignment.Left,
+                Style = R<Style>("Chip"), Content = stack, HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Top,
                 Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0, 0, 10, 0),
                 IsChecked = previous.TryGetValue(component, out var was) ? was : component is StressComponent.Cpu or StressComponent.Fpu or StressComponent.Cache,
                 IsEnabled = !_engine.IsRunning

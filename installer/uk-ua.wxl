@@ -1,0 +1,6 @@
+<WixLocalization Culture="uk-UA" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Language" Value="1058" />
+  <String Id="Downgrade" Value="Уже встановлено новішу версію Silica." />
+  <String Id="ShortcutDescription" Value="Відомості про систему, датчики й тести продуктивності" />
+  <String Id="LaunchApp" Value="Запустити Silica" />
+</WixLocalization>

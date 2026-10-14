@@ -82,6 +82,13 @@ public sealed class LineChart : FrameworkElement
         if (plot.Width < 20 || plot.Height < 20) return;
 
         var kind = _series.Count > 0 ? _series[0].Reading.Kind : SensorKind.Other;
+        if (_data.All(d => d.Count < 2))
+        {
+            var hint = new FormattedText(Loc.Instance.T("Collecting data..."), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                new Typeface("Segoe UI"), 12, ThemeService.BrushOf("Brush.Text3"), VisualTreeHelper.GetDpi(this).PixelsPerDip);
+            dc.DrawText(hint, new Point(plot.Left + (plot.Width - hint.Width) / 2, plot.Top + (plot.Height - hint.Height) / 2));
+            return;
+        }
         var (min, max) = Range(kind);
         var ticks = NiceTicks(min, max, Math.Max(2, (int)(plot.Height / 42)));
         min = ticks[0];

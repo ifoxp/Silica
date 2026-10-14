@@ -104,7 +104,7 @@ public sealed partial class Loc : INotifyPropertyChanged
 
     public string this[string key] => T(key);
 
-    /// <summary>Translates a key. Keys that end with a number ("Core #3", "GPU2") also match a "{0}" template.</summary>
+    /// <summary>Translates a key. Keys ending with a separate number ("Core #3", "GPU Fan 2") also match a "{0}" template.</summary>
     public string T(string key)
     {
         if (string.IsNullOrEmpty(key)) return key;

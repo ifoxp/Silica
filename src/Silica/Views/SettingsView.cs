@@ -79,7 +79,6 @@ public sealed class SettingsView : UserControl, INavigable
 
         var body = new StackPanel { Margin = new Thickness(28, 0, 28, 28), MaxWidth = 920, HorizontalAlignment = HorizontalAlignment.Left };
 
-        // Appearance
         var themeSeg = Segmented([(T("System"), AppTheme.System), (T("Dark"), AppTheme.Dark), (T("Light"), AppTheme.Light)], s.Theme, v =>
         {
             s.Theme = v;
@@ -107,7 +106,6 @@ public sealed class SettingsView : UserControl, INavigable
             Row("Theme", "System follows the Windows setting", themeSeg),
             Row("Accent color", null, swatches)));
 
-        // Language
         var langs = new StackPanel();
         langs.Children.Add(LanguageRow("auto", T("Automatic"), T("Same as Windows"), null, s.Language is "auto" or ""));
         foreach (var pack in Loc.Instance.Available)
@@ -135,7 +133,6 @@ public sealed class SettingsView : UserControl, INavigable
         };
         body.Children.Add(Section("language", "Language", "", Stack(langs, langButtons, langNote)));
 
-        // Monitoring
         var unitSeg = Segmented([("°C", false), ("°F", true)], s.Fahrenheit, v => { s.Fahrenheit = v; Settings.Touch(); });
         var intervalText = new TextBlock { Style = R<Style>("Text.Base"), Width = 60, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
         var interval = new Slider { Minimum = 0.5, Maximum = 5, Width = 220, TickFrequency = 0.5, IsSnapToTickEnabled = true, Value = s.PollIntervalMs / 1000.0 };
@@ -169,14 +166,12 @@ public sealed class SettingsView : UserControl, INavigable
             Row("Monitored hardware", "Turning off what you do not need makes polling lighter", groups),
             Switch("Show virtual network adapters", "VPN, Hyper-V and filter drivers", s.ShowVirtualNetwork, v => s.ShowVirtualNetwork = v)));
 
-        // Tray
         body.Children.Add(Section("tray", "Tray icon", "",
             Switch("Show Silica in the notification area", null, s.TrayEnabled, v => s.TrayEnabled = v),
             Switch("Minimize to the notification area", null, s.MinimizeToTray, v => s.MinimizeToTray = v),
             Switch("Close to the notification area", "The close button hides the window; exit from the tray menu", s.CloseToTray, v => s.CloseToTray = v),
             Row("Sensors in the tray", "Right-click a sensor on the Sensors page to add it", SensorList(s.TraySensors))));
 
-        // Overlay
         var opacity = new Slider { Minimum = 0.3, Maximum = 1, Width = 220, Value = s.OverlayOpacity };
         opacity.ValueChanged += (_, _) => { s.OverlayOpacity = opacity.Value; Settings.Touch(); };
         var scale = new Slider { Minimum = 0.8, Maximum = 1.6, Width = 220, Value = s.OverlayScale };
@@ -188,7 +183,6 @@ public sealed class SettingsView : UserControl, INavigable
             Switch("Click-through", "Mouse clicks pass through the panel to the window below", s.OverlayClickThrough, v => s.OverlayClickThrough = v),
             Row("Sensors in the overlay", "Right-click a sensor on the Sensors page to add it", SensorList(s.OverlaySensors))));
 
-        // Logging
         var folderText = new TextBlock
         {
             Style = R<Style>("Text.Secondary"), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0),
@@ -215,7 +209,6 @@ public sealed class SettingsView : UserControl, INavigable
             Row("Folder", null, folderRow),
             Row("Write every", null, logInterval)));
 
-        // Alerts
         var rules = new StackPanel();
         if (s.Alerts.Count == 0)
             rules.Children.Add(new TextBlock { Style = R<Style>("Text.Secondary"), TextWrapping = TextWrapping.Wrap, Text = T("No alerts yet. Right-click a sensor on the Sensors page and choose Add alert.") });
@@ -243,7 +236,6 @@ public sealed class SettingsView : UserControl, INavigable
             Row("Repeat the same alert at most every", null, cooldown),
             Row("Rules", null, rules)));
 
-        // Startup
         var startupOn = false;
         try { startupOn = StartupService.IsEnabled(); } catch { }
         body.Children.Add(Section("startup", "Startup", "",
@@ -262,11 +254,9 @@ public sealed class SettingsView : UserControl, INavigable
             }),
             Switch("Start minimized", "Starts in the notification area when the tray icon is on", s.StartMinimized, v => s.StartMinimized = v)));
 
-        // Search
         body.Children.Add(Section("search", "Search", "",
             Switch("Search inside all pages", "Reads the remaining pages in the background the first time you search", s.DeepSearch, v => s.DeepSearch = v)));
 
-        // About
         var about = new StackPanel();
         about.Children.Add(new TextBlock { Style = R<Style>("Text.Base"), Text = $"Silica {Reports.Version}", FontWeight = FontWeights.SemiBold });
         about.Children.Add(new TextBlock

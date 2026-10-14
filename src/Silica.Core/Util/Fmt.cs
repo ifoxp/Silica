@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Silica.Core.Util;
 
-/// <summary>Formatting helpers. Units are kept in English/SI form; they read fine in any language.</summary>
+/// <summary>Formatting helpers. Unit symbols and text templates go through the hooks below, so the app can translate them.</summary>
 public static class Fmt
 {
     private static readonly string[] BinUnits = ["B", "KB", "MB", "GB", "TB", "PB"];
@@ -48,7 +48,6 @@ public static class Fmt
 
     public static string? Mhz(long? mhz) => mhz is > 0 ? Mhz((double)mhz.Value) : null;
 
-    /// <summary>Network/link speed in bits per second.</summary>
     public static string BitRate(double bps)
     {
         if (bps <= 0) return "—";
@@ -74,6 +73,5 @@ public static class Fmt
 
     public static string Number(double v, int decimals = 0) => v.ToString("N" + decimals, CultureInfo.CurrentCulture);
 
-    /// <summary>Formats an unsigned value as hex, e.g. 0x1F.</summary>
     public static string Hex(ulong v, int digits = 0) => "0x" + v.ToString(digits > 0 ? "X" + digits : "X", CultureInfo.InvariantCulture);
 }

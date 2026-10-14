@@ -18,7 +18,6 @@ public interface IInfoProvider
 
     InfoCategory Category { get; }
 
-    /// <summary>Sort order inside the category (lower first).</summary>
     int Order { get; }
 
     /// <summary>Segoe Fluent Icons / MDL2 glyph, e.g. "".</summary>

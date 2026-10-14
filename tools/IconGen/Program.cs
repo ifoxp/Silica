@@ -16,6 +16,12 @@ var thread = new Thread(() =>
     foreach (var size in sizes) pngs.Add(Png(Render(size)));
     File.WriteAllBytes(Path.Combine(output, "Silica.png"), Png(Render(512)));
     if (args.Length > 1) File.WriteAllBytes(args[1], Png(Strip(sizes)));
+    if (args.Length > 2)
+    {
+        Directory.CreateDirectory(args[2]);
+        File.WriteAllBytes(Path.Combine(args[2], "banner.bmp"), Bmp(InstallerArt(493, 58, banner: true)));
+        File.WriteAllBytes(Path.Combine(args[2], "dialog.bmp"), Bmp(InstallerArt(493, 312, banner: false)));
+    }
 });
 thread.SetApartmentState(ApartmentState.STA);
 thread.Start();
@@ -86,6 +92,43 @@ static BitmapSource Render(int size)
     var bmp = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
     bmp.Render(visual);
     return bmp;
+}
+
+// WiX dialog art: the banner sits behind dark title text on the right side, the dialog image fills the
+// left 164 px of the welcome page, so both keep the mark away from the text areas.
+static BitmapSource InstallerArt(int width, int height, bool banner)
+{
+    var visual = new DrawingVisual();
+    using (var dc = visual.RenderOpen())
+    {
+        if (banner)
+        {
+            dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
+            dc.DrawImage(Render(96), new Rect(width - 52, 7, 44, 44));
+        }
+        else
+        {
+            dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, width, height));
+            var side = new LinearGradientBrush((Color)ColorConverter.ConvertFromString("#14181F"), (Color)ColorConverter.ConvertFromString("#232A4A"), 90);
+            dc.DrawRectangle(side, null, new Rect(0, 0, 164, height));
+            dc.DrawImage(Render(128), new Rect(26, 60, 112, 112));
+            var ft = new FormattedText("Silica", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                new Typeface(new FontFamily("Segoe UI Variable Display, Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), 22, Brushes.White, 1.0);
+            dc.DrawText(ft, new Point((164 - ft.Width) / 2, 196));
+        }
+    }
+    var bmp = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+    bmp.Render(visual);
+    return bmp;
+}
+
+static byte[] Bmp(BitmapSource bmp)
+{
+    var enc = new BmpBitmapEncoder();
+    enc.Frames.Add(BitmapFrame.Create(new FormatConvertedBitmap(bmp, PixelFormats.Bgr24, null, 0)));
+    using var ms = new MemoryStream();
+    enc.Save(ms);
+    return ms.ToArray();
 }
 
 static BitmapSource Strip(int[] sizes)

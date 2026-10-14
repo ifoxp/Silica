@@ -985,6 +985,7 @@ UK = {
     "Created": "Створено",
     "Minimize": "Згорнути",
     "Maximize": "Розгорнути",
+    "Collecting data...": "Збираю дані...",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

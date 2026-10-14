@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     private readonly IReadOnlyList<NavItem> _items = NavCatalog.Build();
     private readonly Dictionary<string, RadioButton> _buttons = [];
     private NavItem? _current;
+    private readonly System.Windows.Threading.DispatcherTimer _searchRefresh = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private bool _reallyClose;
     private bool _startHidden;
 
@@ -45,6 +46,17 @@ public partial class MainWindow : Window
         IsVisibleChanged += (_, _) => UpdateActivity();
         Loaded += (_, _) => Navigate(Settings.Current.StartPage);
         Closing += OnClosing;
+
+        // Results grow while pages are read in the background; refresh the open popup at a calm pace.
+        _searchRefresh.Tick += (_, _) =>
+        {
+            _searchRefresh.Stop();
+            if (SearchPopup.IsOpen) UpdateSearch();
+        };
+        SearchService.IndexChanged += () => Dispatcher.BeginInvoke(() =>
+        {
+            if (SearchPopup.IsOpen && !_searchRefresh.IsEnabled) _searchRefresh.Start();
+        });
 
         InputBindings.Add(new KeyBinding(new RelayCommand(FocusSearch), Key.K, ModifierKeys.Control));
         InputBindings.Add(new KeyBinding(new RelayCommand(FocusSearch), Key.F, ModifierKeys.Control));
@@ -195,8 +207,6 @@ public partial class MainWindow : Window
         if (Elevation.RestartElevated()) ExitApplication();
     }
 
-    // Search
-
     private void FocusSearch()
     {
         SearchBox.Focus();
@@ -226,8 +236,9 @@ public partial class MainWindow : Window
         }
 
         var hits = SearchService.Query(text);
+        var keep = Math.Max(0, SearchResults.SelectedIndex);
         SearchResults.ItemsSource = hits.Select(SearchResultView.Create).ToList();
-        if (hits.Count > 0) SearchResults.SelectedIndex = 0;
+        if (hits.Count > 0) SearchResults.SelectedIndex = Math.Min(keep, hits.Count - 1);
         SearchEmpty.Visibility = hits.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         SearchStatus.Text = SearchService.IsIndexing
             ? Loc.Instance.T("Still reading system data, more results will appear")
@@ -276,8 +287,6 @@ public partial class MainWindow : Window
         Keyboard.ClearFocus();
         Navigate(hit.NavId, hit.Target);
     }
-
-    // Window chrome
 
     private void OnMinimize(object sender, RoutedEventArgs e)
     {

@@ -9,7 +9,6 @@ public sealed class BenchContext(int threads, CancellationToken token, IProgress
     public int Threads { get; } = Math.Max(1, threads);
     public CancellationToken Token { get; } = token;
 
-    /// <summary>Reports progress 0..1.</summary>
     public void Report(double fraction) => progress?.Report(Math.Clamp(fraction, 0, 1));
 }
 
@@ -44,7 +43,6 @@ public interface IBenchmark
 
     bool HigherIsBetter { get; }
 
-    /// <summary>Runs synchronously on the calling (background) thread.</summary>
     BenchResult Run(BenchContext ctx);
 }
 

@@ -2,7 +2,6 @@ namespace Silica.Core.Model;
 
 /// <summary>A single "label: value" line on an info page.</summary>
 /// <param name="Label">English label; the UI translates it.</param>
-/// <param name="Value">Display value.</param>
 /// <param name="LocalizeValue">True when the value is a fixed English word (Yes/No/Enabled…) that the UI may translate.</param>
 public sealed record InfoProperty(string Label, string Value, bool LocalizeValue = false);
 
@@ -15,13 +14,11 @@ public abstract class InfoBlock
     public bool LocalizeTitle { get; init; } = true;
 }
 
-/// <summary>A card of key/value properties.</summary>
 public sealed class PropertyBlock : InfoBlock
 {
     public List<InfoProperty> Items { get; } = [];
 }
 
-/// <summary>A sortable table.</summary>
 public sealed class TableBlock : InfoBlock
 {
     public required string[] Columns { get; init; }

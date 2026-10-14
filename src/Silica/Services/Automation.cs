@@ -51,7 +51,13 @@ public static class Automation
             timer.Stop();
             try
             {
-                if (args.Search != null) window.UpdateSearch();
+                if (args.Search != null)
+                {
+                    window.UpdateSearch();
+                    var hits = SearchService.Query(args.Search);
+                    File.WriteAllLines(args.ShotPath! + ".txt",
+                        hits.Select(h => $"{h.Score:0.00} {h.Kind} {h.Title} | {h.Subtitle}").Prepend($"indexing={SearchService.IsIndexing} pages={PageStore.All.Count()}"));
+                }
                 Capture(window, args.ShotPath!);
             }
             catch (Exception ex)

@@ -115,7 +115,7 @@ public partial class DashboardView : UserControl, INavigable
         GpuPower.Text = Format(k.GpuPower);
         GpuMemory.Text = k.GpuMemoryUsed?.Value is { } used
             ? k.GpuMemoryTotal?.Value is { } total and > 0
-                ? $"{used / 1024:0.0} / {total / 1024:0} GB"
+                ? $"{used / 1024:0.0} / {total / 1024:0} {Fmt.Unit("GB")}"
                 : SensorFormat.Format(SensorKind.SmallData, used)
             : "—";
         GpuSpark.Reading = k.GpuLoad;
@@ -125,7 +125,7 @@ public partial class DashboardView : UserControl, INavigable
         {
             var ramTotal = ramUsed + ramFree;
             RamUsed.Text = ramUsed.ToString("0.0", CultureInfo.CurrentCulture);
-            RamTotal.Text = "/ " + ramTotal.ToString("0.0", CultureInfo.CurrentCulture) + " GB";
+            RamTotal.Text = "/ " + ramTotal.ToString("0.0", CultureInfo.CurrentCulture) + " " + Fmt.Unit("GB");
             RamBar.Value = k.RamLoad?.Value ?? ramUsed / ramTotal * 100;
             RamPercent.Text = loc.F("{0}% in use", Math.Round(RamBar.Value));
         }
