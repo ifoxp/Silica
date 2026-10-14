@@ -204,7 +204,7 @@ public partial class MainWindow : Window
 
     private void OnRestartElevated(object sender, RoutedEventArgs e)
     {
-        if (Elevation.RestartElevated()) ExitApplication();
+        if (Elevation.RestartElevated(null, replacing: true)) ExitApplication();
     }
 
     private void FocusSearch()

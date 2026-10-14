@@ -46,6 +46,13 @@ public partial class App : Application
             return;
         }
 
+        // Ask for administrator rights once; if the prompt is declined, carry on in limited mode.
+        if (!Elevation.IsElevated && !Args.IsAutomation && !Args.Restarted && !Args.NoElevate && Elevation.RestartElevated(e.Args, replacing: false))
+        {
+            Shutdown();
+            return;
+        }
+
         if (!Args.IsAutomation && !ClaimSingleInstance())
         {
             Shutdown();
@@ -137,6 +144,7 @@ public sealed class CommandLine
                 case "--lang": Language = Next(); break;
                 case "--minimized": Minimized = true; break;
                 case "--restarted": Restarted = true; break;
+                case "--no-elevate": NoElevate = true; break;
                 case "--shot": ShotPath = Next(); break;
                 case "--page": Page = Next(); break;
                 case "--theme": Theme = Next(); break;
@@ -153,6 +161,7 @@ public sealed class CommandLine
     public string? Language { get; }
     public bool Minimized { get; }
     public bool Restarted { get; }
+    public bool NoElevate { get; }
     public string? ShotPath { get; }
     public string? Page { get; }
     public string? Theme { get; }

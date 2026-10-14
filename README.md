@@ -38,7 +38,7 @@ Silica only does work you ask for. Pages are read when you open them, and sensor
 ## Requirements
 
 - Windows 10 or 11, 64-bit.
-- Administrator rights. Silica asks for them at start because temperatures, fan speeds and drive health are not readable otherwise. If you decline, it still runs in a limited mode.
+- Administrator rights. Silica asks for them at start because temperatures, fan speeds and drive health are not readable otherwise. If you decline, it runs in a limited mode and offers to restart with rights later.
 - [PawnIO](https://pawnio.eu) for processor temperatures and motherboard sensors. Silica tells you when it is missing.
 
 ## Download and run

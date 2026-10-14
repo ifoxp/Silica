@@ -238,7 +238,8 @@ public partial class DashboardView : UserControl, INavigable
 
         foreach (var (reading, value) in _thermals)
         {
-            value.Text = SensorFormat.Format(reading.Kind, reading.Value);
+            // Without administrator rights some temperature sensors exist but read zero.
+            value.Text = reading.Kind == SensorKind.Temperature && reading.Value is <= 0 ? "—" : SensorFormat.Format(reading.Kind, reading.Value);
             value.Foreground = reading.Kind == SensorKind.Temperature && reading.Value is > 85
                 ? (Brush)FindResource("Brush.Danger")
                 : reading.Kind == SensorKind.Temperature && reading.Value is > 75
