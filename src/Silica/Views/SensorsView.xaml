@@ -42,10 +42,10 @@
                     <Ellipse Grid.Column="1" Width="9" Height="9" Stroke="{DynamicResource Brush.StrokeStrong}" StrokeThickness="1.2" HorizontalAlignment="Center"
                              Visibility="{Binding Pinned, Converter={StaticResource HiddenWhen}}" />
                     <TextBlock Grid.Column="2" Text="{Binding Name}" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="4,0,12,0" />
-                    <TextBlock Grid.Column="3" Text="{Binding Value}" Style="{StaticResource Text.Base}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Text="{Binding Min}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="5" Text="{Binding Max}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="6" Text="{Binding Avg}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="3" Text="{Binding Value}" Style="{StaticResource Text.Number}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="{Binding Min}" Style="{StaticResource Text.Number}" Foreground="{DynamicResource Brush.Text2}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="5" Text="{Binding Max}" Style="{StaticResource Text.Number}" Foreground="{DynamicResource Brush.Text2}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="6" Text="{Binding Avg}" Style="{StaticResource Text.Number}" Foreground="{DynamicResource Brush.Text2}" VerticalAlignment="Center" />
                     <c:Sparkline Grid.Column="7" Height="20" Samples="60" Reading="{Binding Reading}" Version="{Binding Version}" Fill="False" Margin="0,0,4,0" />
                 </Grid>
             </Border>

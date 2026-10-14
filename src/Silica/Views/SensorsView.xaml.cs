@@ -216,7 +216,7 @@ public partial class SensorsView : UserControl, INavigable
         {
             var dot = new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(ThemeService.Series(pins.IndexOf(r.Id))), Margin = new Thickness(0, 0, 8, 0) };
             var name = new TextBlock { Style = (Style)FindResource("Text.Caption"), Text = $"{Loc.Instance.T(r.Name)} · {r.Device.Name}", MaxWidth = 260 };
-            var value = new TextBlock { Style = (Style)FindResource("Text.Base"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(8, 0, 6, 0), Tag = r };
+            var value = new TextBlock { Style = (Style)FindResource("Text.Number"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(8, 0, 6, 0), Tag = r };
             var close = new Button { Style = (Style)FindResource("Button.Icon"), Width = 22, Height = 22, FontSize = 9, Content = "", ToolTip = Loc.Instance.T("Remove from chart") };
             var id = r.Id;
             close.Click += (_, _) => TogglePin(id);

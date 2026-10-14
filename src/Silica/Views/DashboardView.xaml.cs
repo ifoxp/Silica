@@ -227,7 +227,7 @@ public partial class DashboardView : UserControl, INavigable
 
             foreach (var (title, reading) in list)
             {
-                var value = new TextBlock { Style = (Style)FindResource("Text.Base"), FontSize = 17, FontWeight = FontWeights.SemiBold, FontFamily = (FontFamily)FindResource("Font.Display") };
+                var value = new TextBlock { Style = (Style)FindResource("Text.Number"), FontSize = 17, FontWeight = FontWeights.SemiBold, FontFamily = (FontFamily)FindResource("Font.Display") };
                 var stack = new StackPanel();
                 stack.Children.Add(new TextBlock { Style = (Style)FindResource("Text.Caption"), Text = title, ToolTip = title });
                 stack.Children.Add(value);
