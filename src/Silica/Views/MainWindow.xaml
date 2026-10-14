@@ -72,9 +72,9 @@
             </Grid>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
-                <Button Style="{StaticResource Button.Caption}" Content="&#xE921;" Click="OnMinimize" />
-                <Button x:Name="MaxButton" Style="{StaticResource Button.Caption}" Content="&#xE922;" Click="OnMaximize" />
-                <Button Style="{StaticResource Button.CaptionClose}" Content="&#xE8BB;" Click="OnClose" />
+                <Button Style="{StaticResource Button.Caption}" Content="&#xE921;" Click="OnMinimize" AutomationProperties.Name="{l:T Minimize}" />
+                <Button x:Name="MaxButton" Style="{StaticResource Button.Caption}" Content="&#xE922;" Click="OnMaximize" AutomationProperties.Name="{l:T Maximize}" />
+                <Button Style="{StaticResource Button.CaptionClose}" Content="&#xE8BB;" Click="OnClose" AutomationProperties.Name="{l:T Close}" />
             </StackPanel>
         </Grid>
 

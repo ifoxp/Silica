@@ -96,6 +96,7 @@ public partial class InfoPageView : UserControl, INavigable
 
     private void ShowSkeleton()
     {
+        StopSkeleton();
         Body.Children.Clear();
         var pulse = new DoubleAnimation(0.35, 0.8, TimeSpan.FromMilliseconds(800)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
         for (var c = 0; c < 2; c++)
@@ -115,6 +116,7 @@ public partial class InfoPageView : UserControl, INavigable
             }
             var card = new Border { Style = (Style)FindResource("Card"), Child = stack, Margin = new Thickness(0, 0, 0, 16) };
             card.BeginAnimation(OpacityProperty, pulse);
+            _skeleton.Add(card);
             Body.Children.Add(card);
         }
 
@@ -125,8 +127,18 @@ public partial class InfoPageView : UserControl, INavigable
         };
     }
 
+    private readonly List<UIElement> _skeleton = [];
+
+    // A forever animation keeps WPF rendering frames even after its element is removed, so stop it explicitly.
+    private void StopSkeleton()
+    {
+        foreach (var e in _skeleton) e.BeginAnimation(OpacityProperty, null);
+        _skeleton.Clear();
+    }
+
     private void Render(InfoPage page)
     {
+        StopSkeleton();
         _twoColumns = ActualWidth >= TwoColumnWidth;
         Body.Children.Clear();
         _propertyCards.Clear();

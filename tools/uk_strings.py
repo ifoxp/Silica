@@ -983,6 +983,8 @@ UK = {
     "Write errors": "Помилки запису",
     "Contents": "Зміст",
     "Created": "Створено",
+    "Minimize": "Згорнути",
+    "Maximize": "Розгорнути",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

@@ -42,6 +42,7 @@ public partial class MainWindow : Window
             HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(WndProc);
         };
         StateChanged += (_, _) => OnStateChanged();
+        IsVisibleChanged += (_, _) => UpdateActivity();
         Loaded += (_, _) => Navigate(Settings.Current.StartPage);
         Closing += OnClosing;
 
@@ -289,8 +290,21 @@ public partial class MainWindow : Window
 
     private void OnClose(object sender, RoutedEventArgs e) => Close();
 
+    private bool _active = true;
+
+    /// <summary>A minimized or hidden window stops its page from polling sensors and redrawing.</summary>
+    private void UpdateActivity()
+    {
+        var active = IsVisible && WindowState != WindowState.Minimized;
+        if (active == _active || _current == null) return;
+        _active = active;
+        if (active) (_current.View as INavigable)?.OnNavigatedTo(null);
+        else (_current.View as INavigable)?.OnNavigatedFrom();
+    }
+
     private void OnStateChanged()
     {
+        UpdateActivity();
         // A maximized chrome-less window extends past the screen by the frame width.
         Root.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
         MaxButton.Content = WindowState == WindowState.Maximized ? "" : "";

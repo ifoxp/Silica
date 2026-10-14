@@ -134,7 +134,7 @@ public sealed class MonitorTestWindow : Window
         var hintStack = new StackPanel();
         hintStack.Children.Add(_hintTitle);
         hintStack.Children.Add(_hintText);
-        hintStack.Children.Add(new TextBlock { FontSize = 12, Margin = new Thickness(0, 8, 0, 0), Opacity = 0.7, Text = Loc.Instance.T("Arrow keys or click: next pattern    Esc: exit") });
+        hintStack.Children.Add(new TextBlock { FontSize = 12, Margin = new Thickness(0, 8, 0, 0), Opacity = 0.6, Foreground = Brushes.White, Text = Loc.Instance.T("Arrow keys or click: next pattern    Esc: exit") });
         _hint = new Border
         {
             Child = hintStack, Background = new SolidColorBrush(Color.FromArgb(220, 20, 22, 26)), CornerRadius = new CornerRadius(10),
