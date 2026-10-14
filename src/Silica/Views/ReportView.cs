@@ -184,7 +184,7 @@ public sealed class ReportView : UserControl, INavigable
             var path = dialog.FileName;
             await Task.Run(() => Reports.Write(path, pages, format));
             _status.Text = loc.F("Saved to {0}", path);
-            if (_openWhenReady) Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            if (_openWhenReady) ShellOpen.Open(path);
         }
         catch (Exception ex)
         {

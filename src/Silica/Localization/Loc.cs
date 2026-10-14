@@ -15,6 +15,9 @@ namespace Silica.Localization;
 /// </summary>
 public sealed partial class Loc : INotifyPropertyChanged
 {
+    // Taken before Use() replaces CurrentUICulture with the chosen language.
+    private static readonly CultureInfo DisplayCulture = CultureInfo.CurrentUICulture;
+
     public static Loc Instance { get; } = new();
 
     private readonly List<LanguagePack> _packs = [];
@@ -89,7 +92,7 @@ public sealed partial class Loc : INotifyPropertyChanged
     /// <summary>Picks a language by code; "auto" or unknown codes follow the Windows display language, then English.</summary>
     public void Use(string? code)
     {
-        var pack = Find(code) ?? Match(CultureInfo.InstalledUICulture) ?? _english;
+        var pack = Find(code) ?? Match(DisplayCulture) ?? Match(CultureInfo.InstalledUICulture) ?? _english;
         var previous = _current;
         _current = pack;
         try

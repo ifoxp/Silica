@@ -1,3 +1,4 @@
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Principal;
@@ -11,6 +12,21 @@ namespace Silica.Services;
 public static class StartupService
 {
     private const string TaskName = "Silica";
+
+    /// <summary>
+    /// The task starts Silica with administrator rights at every sign-in, so the exe must sit where only
+    /// administrators can replace it. A portable copy in Downloads would let any program swap the file.
+    /// </summary>
+    public static bool IsAllowed
+    {
+        get
+        {
+            var exe = Path.GetFullPath(AppPaths.ExecutablePath);
+            return new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 }
+                .Select(f => Environment.GetFolderPath(f))
+                .Any(dir => dir.Length > 0 && exe.StartsWith(dir.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase));
+        }
+    }
 
     public static bool IsEnabled()
     {
@@ -28,6 +44,7 @@ public static class StartupService
 
     public static void Set(bool enabled)
     {
+        if (enabled && !IsAllowed) throw new InvalidOperationException("Start with Windows is only available for a copy in Program Files.");
         object? service = null, folder = null;
         try
         {

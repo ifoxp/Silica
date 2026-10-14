@@ -138,7 +138,7 @@ public sealed class SettingsView : UserControl, INavigable
         {
             var folder = Loc.ExternalFolders().Last();
             Directory.CreateDirectory(folder);
-            Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+            ShellOpen.Open(folder);
         }));
         langButtons.Children.Add(SmallButton("Create translation template", CreateTemplate));
         langButtons.Children.Add(SmallButton("Reload languages", () =>
@@ -261,20 +261,37 @@ public sealed class SettingsView : UserControl, INavigable
 
         var startupOn = false;
         try { startupOn = StartupService.IsEnabled(); } catch { }
-        body.Children.Add(Section("startup", "Startup", "",
-            Switch("Start with Windows", "Starts after you sign in, without a UAC prompt", startupOn, v =>
+        // An existing task can always be removed, a new one only for the installed copy.
+        var startupAllowed = StartupService.IsAllowed || startupOn;
+        FrameworkElement? startupSwitch = null;
+        startupSwitch = Switch("Start with Windows", startupAllowed ? "Starts after you sign in, without a UAC prompt" : null, startupOn, v =>
             {
                 try
                 {
                     StartupService.Set(v);
                     s.StartWithWindows = v;
+                    if (!StartupService.IsAllowed) startupSwitch!.IsEnabled = false;
                 }
                 catch (Exception ex)
                 {
                     Log.Error("Startup task", ex);
                     ErrorDialog.Show(Window.GetWindow(this), ex, T("Windows did not allow changing the startup task."));
                 }
-            }),
+            });
+        FrameworkElement startupRow = startupSwitch;
+        if (!startupAllowed)
+        {
+            // The reason stays at full contrast; only the switch itself is dimmed.
+            startupSwitch.IsEnabled = false;
+            startupSwitch.Margin = new Thickness(0, 10, 0, 2);
+            startupRow = Stack(startupSwitch, new TextBlock
+            {
+                Style = R<Style>("Text.Caption"), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, Margin = new Thickness(0, 0, 64, 10),
+                Text = T("Available in the installed version. A portable copy can be replaced by other programs, so Windows must not start it with administrator rights")
+            });
+        }
+        body.Children.Add(Section("startup", "Startup", "",
+            startupRow,
             Switch("Start minimized", "Starts in the notification area when the tray icon is on", s.StartMinimized, v => s.StartMinimized = v)));
 
         body.Children.Add(Section("search", "Search", "",
@@ -296,10 +313,10 @@ public sealed class SettingsView : UserControl, INavigable
         aboutButtons.Children.Add(SmallButton("Open data folder", () =>
         {
             AppPaths.EnsureDataDirectory();
-            Process.Start(new ProcessStartInfo(AppPaths.DataDirectory) { UseShellExecute = true });
+            ShellOpen.Open(AppPaths.DataDirectory);
         }));
         if (File.Exists(AppPaths.LogFile))
-            aboutButtons.Children.Add(SmallButton("Open log file", () => Process.Start(new ProcessStartInfo(AppPaths.LogFile) { UseShellExecute = true })));
+            aboutButtons.Children.Add(SmallButton("Open log file", () => ShellOpen.Open(AppPaths.LogFile)));
         about.Children.Add(aboutButtons);
         body.Children.Add(Section("about", "About", "", about));
 

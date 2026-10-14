@@ -30,6 +30,8 @@
 
 Silica only does work you ask for. Pages are read when you open them, and sensors are polled only while something shows or records them: a minimized window uses no processor time unless the tray, overlay, logging or alerts need live values.
 
+Memory is kept low the same way. Sensors run in a second `Silica.exe` process that closes a minute after nothing needs them, which returns the memory the sensor library and driver hold. On screens up to 2560×1600 the interface is drawn by the processor, about 50 MB less than drawing on the graphics card; **Settings → Appearance → Drawing** changes it. A hidden or minimized window gives its memory back to Windows.
+
 | | |
 |---|---|
 | ![Sensors](docs/screenshots/sensors.png) | ![Processor](docs/screenshots/processor.png) |
@@ -45,6 +47,8 @@ Silica only does work you ask for. Pages are read when you open them, and sensor
 
 - **Installer:** `Silica-<version>-uk.msi` or `Silica-<version>-en.msi`. Installs to Program Files and adds a Start menu entry.
 - **Portable:** unzip `Silica-<version>-portable.zip` and run `Silica.exe`. To keep settings next to the program instead of `%AppData%\Silica`, create an empty `Silica.settings.json` beside it.
+
+**Start with Windows** is available only in the installed version. The startup task runs Silica with administrator rights, so the program file has to sit in Program Files, where other programs cannot replace it.
 
 Windows 11 puts new tray icons into the overflow area. To keep a sensor visible, drag its icon from the overflow to the taskbar once.
 
@@ -67,15 +71,19 @@ Silica.exe --lang en                    # start in a given language
 
 ## Languages
 
-Ukrainian and English are built in. A language is a single JSON file:
+52 languages are built in: English, Ukrainian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian, Bulgarian, Catalan, Chinese (Simplified and Traditional), Croatian, Czech, Danish, Dutch, Estonian, Finnish, French, Galician, Georgian, German, Greek, Hebrew, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Kazakh, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian, Persian, Polish, Portuguese (Portugal and Brazil), Romanian, Serbian (Latin), Slovak, Slovenian, Spanish, Swedish, Thai, Turkish and Vietnamese. Silica picks the Windows display language on first start. Arabic, Hebrew and Persian use a right-to-left layout.
+
+English and Ukrainian are written by hand; the other languages are machine-assisted and welcome corrections from native speakers. Any text missing from a language is shown in English, so a partial translation is still usable.
+
+To add or fix a language (a single JSON file):
 
 1. In Silica, open **Settings → Language → Create translation template**.
 2. Translate the values (the keys are the English texts) and set the language code and name at the top.
 3. Put the file into the languages folder (**Open languages folder**) and press **Reload languages**.
 
-`plural` selects how counts are written (`one-other`, `east-slavic`, `polish`, `czech`, `zero-one-other`, `none`). Forms are separated by `|`, for example `"{0} датчик|{0} датчики|{0} датчиків"`. The `synonyms` section adds search words. Settings shows how complete each language is.
+`plural` selects how counts are written (`none`, `one-other`, `zero-one-other`, `east-slavic`, `polish`, `czech`, `lithuanian`, `latvian`, `romanian`, `slovenian`, `arabic`, `hebrew`). Forms are separated by `|`, for example `"{0} датчик|{0} датчики|{0} датчиків"`. The `synonyms` section adds search words. Settings shows how complete each language is.
 
-For contributors: `python tools/i18n.py` refreshes `en.json` from the source and lists missing keys per language.
+For contributors: [tools/TRANSLATING.md](tools/TRANSLATING.md) has the rules. `python tools/i18n.py` refreshes `en.json` from the source and lists missing keys per language; `python tools/check_lang.py` checks placeholders and plural forms.
 
 ## Project layout
 
@@ -109,8 +117,10 @@ MIT, see [LICENSE](LICENSE). Sensor access uses [LibreHardwareMonitor](https://g
 - **Розумний пошук**: розуміє будь-яку встановлену мову, помилки, транслітерацію й неправильну розкладку.
 - **Трей, оверлей, запис у CSV і сповіщення.**
 
-Програма працює лише тоді, коли це потрібно: згорнуте вікно не навантажує процесор, якщо датчики не потрібні трею, оверлею, запису чи сповіщенням.
+Програма працює лише тоді, коли це потрібно: згорнуте вікно не навантажує процесор, якщо датчики не потрібні трею, оверлею, запису чи сповіщенням. Датчики працюють в окремому процесі `Silica.exe`, який закривається через хвилину після того, як стали не потрібні, і звільняє пам'ять. На екранах до 2560×1600 інтерфейс малює процесор, це приблизно на 50 МБ менше пам'яті (змінюється в «Налаштування → Вигляд → Відтворення інтерфейсу»).
 
 **Вимоги:** Windows 10/11 x64, права адміністратора (без них — обмежений режим), драйвер [PawnIO](https://pawnio.eu) для температур процесора й датчиків материнської плати.
 
-**Нова мова** — один файл JSON: «Налаштування → Мова → Створити шаблон перекладу», перекладіть значення й покладіть файл у папку мов.
+**Автозапуск** доступний лише у встановленій версії: завдання запускає Silica з правами адміністратора, тож файл програми має лежати в Program Files, де його не підмінить інша програма.
+
+**Мови:** вбудовано 52 мови, зокрема українську та англійську (написані вручну; решта перекладена з допомогою машинного перекладу, виправлення від носіїв мови вітаються). Якщо в мові бракує якогось тексту, він показується англійською. Нова мова — один файл JSON: «Налаштування → Мова → Створити шаблон перекладу», перекладіть значення й покладіть файл у папку мов.

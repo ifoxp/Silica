@@ -993,6 +993,11 @@ UK = {
     "Drawing": "Відтворення інтерфейсу",
     "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens": "Відтворення процесором займає приблизно на 50 МБ менше пам'яті; відеокарта плавніша на екранах 4K",
     "Stop recording": "Зупинити запис",
+    "Available in the installed version. A portable copy can be replaced by other programs, so Windows must not start it with administrator rights": "Доступно у встановленій версії. Портативну копію можуть підмінити інші програми, тож Windows не повинна запускати її з правами адміністратора",
+    "Detailed BitLocker status (encryption method) requires administrator rights.": "Докладний стан BitLocker (метод шифрування) потребує прав адміністратора.",
+    "Paths and start times of some system processes are only visible when running as administrator.": "Шляхи й час запуску деяких системних процесів видно лише під час роботи від імені адміністратора.",
+    "Tasks created by other users are only visible when running as administrator.": "Завдання, створені іншими користувачами, видно лише під час роботи від імені адміністратора.",
+    "TPM details (state, manufacturer) require administrator rights.": "Відомості про TPM (стан, виробник) потребують прав адміністратора.",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

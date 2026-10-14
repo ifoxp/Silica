@@ -256,8 +256,7 @@ public partial class SensorsView : UserControl, INavigable
 
     private void OnGetDriver(object sender, RoutedEventArgs e)
     {
-        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://pawnio.eu") { UseShellExecute = true }); }
-        catch (Exception ex) { Log.Warn($"Browser: {ex.Message}"); }
+        ShellOpen.Open("https://pawnio.eu");
     }
 
     private void OnReset(object sender, RoutedEventArgs e)

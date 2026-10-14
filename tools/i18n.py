@@ -1,9 +1,10 @@
 """Keeps the language files in sync with the source.
 
-    python tools/i18n.py [dump.json]
+    python tools/i18n.py [dump.json ...]
 
 1. Collects UI strings from the source (XAML {l:T ...} and string literals in the app project).
-2. Adds run-time strings from a dump made with `Silica.exe --dump-strings dump.json`.
+2. Adds run-time strings from dumps made with `Silica.exe --dump-strings dump.json`. Pass one dump made
+   as administrator and one made with --no-elevate: some notices only appear in limited mode.
 3. Rewrites src/Silica/Languages/en.json with every key (English maps to itself).
 4. Prints, per language, the keys that still need a translation and the ones no longer used.
 """
@@ -37,7 +38,7 @@ IGNORE = {
     "Missing \"language\" section", "Missing language code", "NumberOfCores", "ProcessorNameString", "ProductName",
     "References", "ReportFormat", "Screenshot failed", "Sensor log not started", "Sensor log write failed",
     "Sensor logs", "Silica", "Silica bench ", "Silica overlay", "Silica-bench.tmp", "SMBIOSMemoryType", "Stable text",
-    "Stable text: details", "Startup task", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
+    "Stable text: details", "Startup task", "Start with Windows is only available for a copy in Program Files.", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
     "Windows 10", "Windows 11", "yyyy-MM-dd HH:mm:ss", "Report failed", "Report not saved", "Disk benchmark failed",
     "Stability test failed to start", "Languages", "Native name of the language", "English name of the language",
     "Task Scheduler is not available", "AES-NI", "no AES-NI", "AVX", "AVX-512", "AVX2+FMA", "FP32", "FP64", "FPU", "SSE",
@@ -179,8 +180,9 @@ def save(path: Path, data: dict) -> None:
 
 def main() -> None:
     keys = static_keys()
-    if len(sys.argv) > 1:
-        keys |= {k for k in load(Path(sys.argv[1])) if k.strip()}
+    for arg in sys.argv[1:]:
+        if not arg.startswith("--"):
+            keys |= {k for k in load(Path(arg)) if k.strip()}
 
     en_path = LANGS / "en.json"
     en = load(en_path)
