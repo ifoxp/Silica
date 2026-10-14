@@ -447,10 +447,14 @@ public sealed class SettingsView : UserControl, INavigable
             Grid.SetColumn(pct, 2);
             grid.Children.Add(pct);
         }
-        var row = new Border { Child = grid, Padding = new Thickness(10, 9, 10, 9), Margin = new Thickness(-10, 0, -10, 0), CornerRadius = new CornerRadius(6), Background = Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand };
-        row.MouseEnter += (_, _) => row.Background = R<Brush>("Brush.Hover");
-        row.MouseLeave += (_, _) => row.Background = Brushes.Transparent;
-        row.MouseLeftButtonUp += (_, _) =>
+        var row = new RadioButton
+        {
+            Style = R<Style>("Button.Ghost"), Content = grid, GroupName = "language", IsChecked = selected,
+            Padding = new Thickness(10, 9, 10, 9), Margin = new Thickness(-10, 0, -10, 0), MinHeight = 0,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch
+        };
+        System.Windows.Automation.AutomationProperties.SetName(row, english.Length > 0 && english != name ? $"{name}, {english}" : name);
+        row.Checked += (_, _) =>
         {
             Settings.Current.Language = code;
             Settings.Touch();

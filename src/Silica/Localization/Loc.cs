@@ -23,6 +23,7 @@ public sealed partial class Loc : INotifyPropertyChanged
     private readonly List<LanguagePack> _packs = [];
     private LanguagePack _current;
     private LanguagePack _english;
+    private LanguagePack? _base;
     private List<LanguagePack> _searchPacks = [];
 
     private Loc()
@@ -86,6 +87,7 @@ public sealed partial class Loc : INotifyPropertyChanged
         _packs.AddRange(byCode.Values.OrderBy(p => p.Code == "en" ? 0 : 1).ThenBy(p => p.EnglishName, StringComparer.OrdinalIgnoreCase));
         _english = byCode["en"];
         if (_current != null) _current = byCode.GetValueOrDefault(_current.Code, _english);
+        _base = BaseOf(_current);
         UpdateSearchPacks();
     }
 
@@ -94,10 +96,12 @@ public sealed partial class Loc : INotifyPropertyChanged
     {
         var pack = Find(code) ?? Match(DisplayCulture) ?? Match(CultureInfo.InstalledUICulture) ?? _english;
         var previous = _current;
+        var previousBase = _base;
         _current = pack;
+        _base = BaseOf(pack);
         try
         {
-            var culture = CultureInfo.GetCultureInfo(pack.Code);
+            var culture = CultureInfo.GetCultureInfo(pack.IsVariant ? pack.Base : pack.Code);
             CultureInfo.CurrentUICulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             FlowDirection = culture.TextInfo.IsRightToLeft ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
@@ -108,13 +112,17 @@ public sealed partial class Loc : INotifyPropertyChanged
         }
 
         UpdateSearchPacks();
-        if (previous != null && previous != pack && !_searchPacks.Contains(previous)) previous.Unload();
+        foreach (var old in new[] { previous, previousBase })
+            if (old != null && old != pack && old != _english && !_searchPacks.Contains(old)) old.Unload();
 
         Revision++;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Revision)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Current)));
         LanguageChanged?.Invoke();
     }
+
+    private LanguagePack? BaseOf(LanguagePack? pack) =>
+        pack is { IsVariant: true } && Find(pack.Base) is { } b && b != pack && b != _english ? b : null;
 
     public LanguagePack? Find(string? code) => code == null ? null : _packs.FirstOrDefault(p => p.Code == code.ToLowerInvariant());
 
@@ -133,11 +141,13 @@ public sealed partial class Loc : INotifyPropertyChanged
     /// <summary>
     /// Runs <paramref name="action"/> for every installed language, loading each one only for the call,
     /// so building the page and setting part of the search index does not keep 50 languages in memory.
+    /// Playful variants take part only while they are in use, so their words do not turn up in every search.
     /// </summary>
     public void ForEachPack(Action<LanguagePack> action)
     {
         foreach (var pack in _packs.ToList())
         {
+            if (pack.IsVariant && pack != _current) continue;
             var wasLoaded = pack.IsLoaded;
             action(pack);
             if (!wasLoaded && pack != _current && pack != _english && !_searchPacks.Contains(pack)) pack.Unload();
@@ -152,11 +162,12 @@ public sealed partial class Loc : INotifyPropertyChanged
         if (string.IsNullOrEmpty(key)) return key;
         if (_current.Strings.TryGetValue(key, out var s)) return s;
         if (_current != _english && TryTemplate(_current, key, out var t)) return t;
+        if (_base != null && (_base.Strings.TryGetValue(key, out s) || TryTemplate(_base, key, out s))) return s;
         if (_english.Strings.TryGetValue(key, out var e)) return e;
         return key;
     }
 
-    public bool Has(string key) => _current.Strings.ContainsKey(key);
+    public bool Has(string key) => _current.Strings.ContainsKey(key) || _base?.Strings.ContainsKey(key) == true;
 
     public string F(string key, params object?[] args)
     {
@@ -167,8 +178,9 @@ public sealed partial class Loc : INotifyPropertyChanged
     /// <summary>Plural-aware format: the translation holds forms separated by '|'; {0} is the count.</summary>
     public string N(long count, string key)
     {
-        var raw = _current.Strings.TryGetValue(key, out var s) ? s : _english.Strings.GetValueOrDefault(key, key);
-        var rule = _current.Strings.ContainsKey(key) ? _current.Plural : _english.Plural;
+        var pack = new[] { _current, _base, _english }.First(p => p == _english || p != null && p.Strings.ContainsKey(key))!;
+        var raw = pack.Strings.GetValueOrDefault(key, key);
+        var rule = pack.Plural;
         var forms = raw.Split('|');
         var form = forms[Math.Min(PluralRules.FormIndex(rule, count), forms.Length - 1)];
         return string.Format(CultureInfo.CurrentCulture, form, count);
@@ -184,6 +196,7 @@ public sealed partial class Loc : INotifyPropertyChanged
     {
         var list = new List<LanguagePack> { _english };
         if (_current != null && _current != _english) list.Add(_current);
+        if (_base != null) list.Add(_base);
         foreach (var culture in KeyboardCultures())
             if (Match(culture) is { } p && !list.Contains(p)) list.Add(p);
         _searchPacks = list;

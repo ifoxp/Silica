@@ -38,7 +38,12 @@ def check(path: Path, en: dict) -> list[str]:
     strings = data.get("strings", {})
     missing = [k for k in en if k not in strings]
     unknown = [k for k in strings if k not in en]
-    if missing:
+    base = meta.get("base")
+    if base and not (LANGS / f"{base}.json").exists():
+        errors.append(f"base language '{base}' not found")
+    if missing and base:
+        print(f"    {len(missing)} keys come from '{base}'")
+    elif missing:
         errors.append(f"{len(missing)} missing keys, e.g. {missing[:3]}")
     if unknown:
         errors.append(f"{len(unknown)} unknown keys, e.g. {unknown[:3]}")

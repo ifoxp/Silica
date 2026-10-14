@@ -71,7 +71,7 @@ Silica.exe --lang en                    # start in a given language
 
 ## Languages
 
-52 languages are built in: English, Ukrainian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian, Bulgarian, Catalan, Chinese (Simplified and Traditional), Croatian, Czech, Danish, Dutch, Estonian, Finnish, French, Galician, Georgian, German, Greek, Hebrew, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Kazakh, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian, Persian, Polish, Portuguese (Portugal and Brazil), Romanian, Serbian (Latin), Slovak, Slovenian, Spanish, Swedish, Thai, Turkish and Vietnamese. Silica picks the Windows display language on first start. Arabic, Hebrew and Persian use a right-to-left layout.
+52 languages are built in: English, Ukrainian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian, Bulgarian, Catalan, Chinese (Simplified and Traditional), Croatian, Czech, Danish, Dutch, Estonian, Finnish, French, Galician, Georgian, German, Greek, Hebrew, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Kazakh, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian, Persian, Polish, Portuguese (Portugal and Brazil), Romanian, Serbian (Latin), Slovak, Slovenian, Spanish, Swedish, Thai, Turkish and Vietnamese. Silica picks the Windows display language on first start. Arabic, Hebrew and Persian use a right-to-left layout. For fun there are three Ukrainian variants: Pirate, Viking and Cossack.
 
 English and Ukrainian are written by hand; the other languages are machine-assisted and welcome corrections from native speakers. Any text missing from a language is shown in English, so a partial translation is still usable.
 
@@ -123,4 +123,4 @@ MIT, see [LICENSE](LICENSE). Sensor access uses [LibreHardwareMonitor](https://g
 
 **Автозапуск** доступний лише у встановленій версії: завдання запускає Silica з правами адміністратора, тож файл програми має лежати в Program Files, де його не підмінить інша програма.
 
-**Мови:** вбудовано 52 мови, зокрема українську та англійську (написані вручну; решта перекладена з допомогою машинного перекладу, виправлення від носіїв мови вітаються). Якщо в мові бракує якогось тексту, він показується англійською. Нова мова — один файл JSON: «Налаштування → Мова → Створити шаблон перекладу», перекладіть значення й покладіть файл у папку мов.
+**Мови:** вбудовано 52 мови, зокрема українську та англійську (написані вручну; решта перекладена з допомогою машинного перекладу, виправлення від носіїв мови вітаються). Якщо в мові бракує якогось тексту, він показується англійською. Для настрою є три варіанти української: піратська, вікінгська й козацька. Нова мова — один файл JSON: «Налаштування → Мова → Створити шаблон перекладу», перекладіть значення й покладіть файл у папку мов.

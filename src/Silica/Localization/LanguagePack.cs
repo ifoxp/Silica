@@ -27,6 +27,14 @@ public sealed class LanguagePack
     public string Author { get; private init; } = "";
     public PluralRule Plural { get; private init; } = PluralRule.OneOther;
 
+    /// <summary>
+    /// For a playful variant of another language ("uk-x-pirate"): that language's code. It supplies the
+    /// culture for numbers and dates and any text the variant leaves out.
+    /// </summary>
+    public string Base { get; private init; } = "";
+
+    public bool IsVariant => Base.Length > 0;
+
     /// <summary>Where it was loaded from (embedded resource name or file path).</summary>
     public string Source { get; }
 
@@ -61,7 +69,8 @@ public sealed class LanguagePack
             Name = string.IsNullOrWhiteSpace(meta.Name) ? meta.Code : meta.Name,
             EnglishName = meta.EnglishName ?? "",
             Author = meta.Author ?? "",
-            Plural = PluralRules.Parse(meta.Plural)
+            Plural = PluralRules.Parse(meta.Plural),
+            Base = meta.Base?.Trim().ToLowerInvariant() ?? ""
         };
     }
 
@@ -141,6 +150,7 @@ internal sealed class LanguageMeta
     public string? EnglishName { get; set; }
     public string? Author { get; set; }
     public string? Plural { get; set; }
+    public string? Base { get; set; }
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true)]

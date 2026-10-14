@@ -45,3 +45,11 @@ Rules:
   searching, including colloquial ones.
 
 Check a file with `python tools/check_lang.py <code>`.
+
+## Variants
+
+A playful or regional variant of an existing language sets `"base"` to that language's code and uses a private-use
+code, for example `"code": "uk-x-pirate", "base": "uk"`. Numbers and dates follow the base language, and any key the
+variant leaves out is shown from the base language instead of English, so a variant may restyle only part of the
+strings. Variants are never picked automatically from the Windows language, and their words join the search only while
+the variant is in use.
