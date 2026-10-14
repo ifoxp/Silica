@@ -39,7 +39,8 @@ public static class ErrorDialog
             Title = title,
             Background = ThemeService.BrushOf("Brush.Surface"),
             FontFamily = (FontFamily)Application.Current.FindResource("Font.UI"),
-            UseLayoutRounding = true
+            UseLayoutRounding = true,
+            FlowDirection = Loc.Instance.FlowDirection
         };
         WindowChrome.SetWindowChrome(win, new WindowChrome { CaptionHeight = 0, GlassFrameThickness = new Thickness(0, 0, 0, 1), ResizeBorderThickness = new Thickness(0) });
         win.SourceInitialized += (_, _) => ThemeService.ApplyWindowFrame(win);

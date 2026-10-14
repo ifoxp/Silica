@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using Microsoft.Win32;
+using Silica.Controls;
 using Silica.Core.Info;
 using Silica.Core.Model;
 using Silica.Localization;
@@ -102,10 +103,10 @@ public sealed class ReportView : UserControl, INavigable
                 Style = R<Style>("Text.Overline"), Margin = new Thickness(0, 12, 0, 8),
                 Text = loc.T(group.Key == InfoCategory.Hardware ? "Hardware" : "Software").ToUpper(System.Globalization.CultureInfo.CurrentUICulture)
             });
-            var grid = new UniformGrid { Columns = 2 };
+            var grid = new AutoFitPanel { MinItemWidth = 190, MaxColumns = 3, Spacing = 8, StretchRows = false };
             foreach (var p in group)
             {
-                var cb = new CheckBox { Content = loc.T(p.Title), IsChecked = !_unchecked.Contains(p.Id), Margin = new Thickness(0, 0, 12, 10) };
+                var cb = new CheckBox { Content = loc.T(p.Title), IsChecked = !_unchecked.Contains(p.Id), Margin = new Thickness(0, 0, 0, 4) };
                 var id = p.Id;
                 cb.Checked += (_, _) => _unchecked.Remove(id);
                 cb.Unchecked += (_, _) => _unchecked.Add(id);
@@ -116,11 +117,9 @@ public sealed class ReportView : UserControl, INavigable
         }
         var pagesCard = new Border { Style = R<Style>("Card"), Child = pages, Margin = new Thickness(0, 0, 16, 0) };
 
-        var layout = new Grid { Margin = new Thickness(28, 0, 28, 28) };
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.4, GridUnitType.Star) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 300 });
+        var layout = new AutoFitPanel { MinItemWidth = 340, MaxColumns = 2, StretchRows = false, Margin = new Thickness(28, 0, 28, 28) };
+        pagesCard.Margin = new Thickness(0);
         layout.Children.Add(pagesCard);
-        Grid.SetColumn(sideCard, 1);
         layout.Children.Add(sideCard);
 
         var root = new Grid();

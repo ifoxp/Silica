@@ -7,6 +7,8 @@ namespace Silica.Services;
 
 public enum AppTheme { System, Dark, Light }
 
+public enum RenderingMode { Automatic, Hardware, Software }
+
 public sealed class AlertRule
 {
     public string SensorId { get; set; } = "";
@@ -34,6 +36,7 @@ public sealed class AppSettings
     public bool Fahrenheit { get; set; }
     public string StartPage { get; set; } = "dashboard";
     public bool SidebarCollapsed { get; set; }
+    public RenderingMode Rendering { get; set; } = RenderingMode.Automatic;
     public WindowPlacement Window { get; set; } = new();
 
     public int PollIntervalMs { get; set; } = 1000;

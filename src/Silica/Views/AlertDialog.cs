@@ -28,7 +28,8 @@ public static class AlertDialog
             Title = loc.T("New alert"),
             Background = ThemeService.BrushOf("Brush.Surface"),
             FontFamily = (FontFamily)app.FindResource("Font.UI"),
-            UseLayoutRounding = true
+            UseLayoutRounding = true,
+            FlowDirection = loc.FlowDirection
         };
         WindowChrome.SetWindowChrome(win, new WindowChrome { CaptionHeight = 0, GlassFrameThickness = new Thickness(0, 0, 0, 1), ResizeBorderThickness = new Thickness(0) });
         win.SourceInitialized += (_, _) => ThemeService.ApplyWindowFrame(win);

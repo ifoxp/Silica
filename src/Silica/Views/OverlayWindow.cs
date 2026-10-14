@@ -33,6 +33,7 @@ public sealed class OverlayWindow : Window
         SizeToContent = SizeToContent.WidthAndHeight;
         Title = "Silica overlay";
         UseLayoutRounding = true;
+        FlowDirection = Loc.Instance.FlowDirection;
         FontFamily = (FontFamily)FindResource("Font.UI");
 
         _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

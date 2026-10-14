@@ -28,6 +28,8 @@ public sealed class Sparkline : FrameworkElement
         nameof(Version), typeof(int), typeof(Sparkline), new FrameworkPropertyMetadata(0, (d, _) => ((Sparkline)d).Refresh()));
 
     private float[] _buffer = new float[60];
+
+    public Sparkline() => FlowDirection = FlowDirection.LeftToRight;
     private int _count;
 
     public SensorReading? Reading

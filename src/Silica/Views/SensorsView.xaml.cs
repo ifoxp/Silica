@@ -278,7 +278,7 @@ public partial class SensorsView : UserControl, INavigable
         Dispatcher.BeginInvoke(() =>
         {
             RecordButton.IsChecked = Monitoring.IsLogging;
-            RecordText.Text = Monitoring.IsLogging ? Loc.Instance.T("Recording") : Loc.Instance.T("Record");
+            RecordText.Text = Monitoring.IsLogging ? Loc.Instance.T("Stop recording") : Loc.Instance.T("Record");
             RecordButton.ToolTip = Monitoring.IsLogging && Monitoring.LogFile != null
                 ? Monitoring.LogFile
                 : Loc.Instance.T("Write all sensor values to a CSV file");

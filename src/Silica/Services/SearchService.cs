@@ -67,8 +67,8 @@ public static class SearchService
         _initialized = true;
         PageStore.Collected += page => { IndexPage(page); IndexChanged?.Invoke(); };
         SensorHub.Shared.DevicesChanged += () => { IndexSensors(); IndexChanged?.Invoke(); };
-        Loc.Instance.LanguageChanged += BuildStatic;
-        BuildStatic();
+        Loc.Instance.LanguageChanged += () => Task.Run(BuildStatic);
+        Task.Run(BuildStatic);
         foreach (var page in PageStore.All) IndexPage(page);
         IndexSensors();
     }
@@ -198,20 +198,34 @@ public static class SearchService
         return new SearchHit(e.Kind, title, subtitle, e.Icon, e.NavId, e.Target, score);
     }
 
+    // Page and setting names are few, so they are matched in every installed language.
     private static void BuildStatic()
     {
+        var items = Views.NavCatalog.Build();
+        var keys = items.Select(i => i.Title).Concat(SettingEntries.Select(e => e.Title)).Distinct().ToList();
+        var words = keys.ToDictionary(k => k, k => new List<string> { k });
+        Loc.Instance.ForEachPack(pack =>
+        {
+            foreach (var key in keys)
+            {
+                if (pack.Strings.TryGetValue(key, out var t)) words[key].Add(t);
+                if (pack.Synonyms.TryGetValue(key, out var syn)) words[key].AddRange(syn);
+            }
+        });
+
         var list = new List<Entry>();
-        foreach (var item in Views.NavCatalog.Build())
+        foreach (var item in items)
         {
             list.Add(Make(SearchKind.Page, item.Title, null, KindCaption(item.Section), null, item.Icon, item.Id, null, true,
-                Variants(item.Title).Append(item.Id)));
+                words[item.Title].Append(item.Id)));
         }
         foreach (var (title, anchor, keywords) in SettingEntries)
         {
             list.Add(Make(SearchKind.Setting, title, null, "Settings", null, "", "settings", anchor, true,
-                Variants(title).Append(keywords)));
+                words[title].Append(keywords)));
         }
         lock (Gate) _static = list;
+        IndexChanged?.Invoke();
     }
 
     private static string KindCaption(Views.NavSection s) => s switch
@@ -266,11 +280,11 @@ public static class SearchService
         lock (Gate) PageEntries[page.Id] = list;
     }
 
-    /// <summary>The English key, its translation in every installed language and any synonyms.</summary>
+    /// <summary>The English key with its translations and synonyms in the search languages.</summary>
     private static IEnumerable<string> Variants(string key)
     {
         yield return key;
-        foreach (var pack in Loc.Instance.Available)
+        foreach (var pack in Loc.Instance.SearchPacks)
         {
             if (pack.Strings.TryGetValue(key, out var t)) yield return t;
             if (pack.Synonyms.TryGetValue(key, out var syn))

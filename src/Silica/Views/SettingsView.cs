@@ -114,9 +114,17 @@ public sealed class SettingsView : UserControl, INavigable
             };
             swatches.Children.Add(dot);
         }
+        var rendering = Segmented([(T("Automatic"), RenderingMode.Automatic), (T("Graphics"), RenderingMode.Hardware), (T("Processor"), RenderingMode.Software)],
+            s.Rendering, v =>
+            {
+                s.Rendering = v;
+                Settings.Touch();
+                Performance.ApplyRenderingToAll();
+            });
         body.Children.Add(Section("appearance", "Appearance", "",
             Row("Theme", "System follows the Windows setting", themeSeg),
-            Row("Accent color", null, swatches)));
+            Row("Accent color", null, swatches),
+            Row("Drawing", "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens", rendering)));
 
         var langs = new StackPanel();
         langs.Children.Add(LanguageRow("auto", T("Automatic"), T("Same as Windows"), null, s.Language is "auto" or ""));

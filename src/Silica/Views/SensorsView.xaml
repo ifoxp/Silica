@@ -31,12 +31,12 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="22" />
                         <ColumnDefinition Width="30" />
-                        <ColumnDefinition Width="*" MinWidth="160" />
-                        <ColumnDefinition Width="110" />
-                        <ColumnDefinition Width="110" />
-                        <ColumnDefinition Width="110" />
-                        <ColumnDefinition Width="110" />
-                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="2.2*" MinWidth="120" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" MaxWidth="140" />
                     </Grid.ColumnDefinitions>
                     <Ellipse Grid.Column="1" Width="9" Height="9" Fill="{Binding Dot}" HorizontalAlignment="Center" />
                     <Ellipse Grid.Column="1" Width="9" Height="9" Stroke="{DynamicResource Brush.StrokeStrong}" StrokeThickness="1.2" HorizontalAlignment="Center"
@@ -132,12 +132,12 @@
             <Grid Margin="10,0,10,6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="52" />
-                    <ColumnDefinition Width="*" MinWidth="160" />
-                    <ColumnDefinition Width="110" />
-                    <ColumnDefinition Width="110" />
-                    <ColumnDefinition Width="110" />
-                    <ColumnDefinition Width="110" />
-                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Width="2.2*" MinWidth="120" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" MaxWidth="140" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="1" Text="{l:T Sensor}" Style="{StaticResource Text.Overline}" Margin="4,0,0,0" />
                 <TextBlock Grid.Column="2" Text="{l:T Current}" Style="{StaticResource Text.Overline}" />

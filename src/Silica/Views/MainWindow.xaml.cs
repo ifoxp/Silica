@@ -36,14 +36,33 @@ public partial class MainWindow : Window
         RestorePlacement();
 
         AdminBanner.Visibility = Elevation.IsElevated ? Visibility.Collapsed : Visibility.Visible;
-        Loc.Instance.LanguageChanged += RebuildNavigationTexts;
+        FlowDirection = Loc.Instance.FlowDirection;
+        Loc.Instance.LanguageChanged += () =>
+        {
+            FlowDirection = Loc.Instance.FlowDirection;
+            RebuildNavigationTexts();
+        };
         SourceInitialized += (_, _) =>
         {
             ThemeService.ApplyWindowFrame(this);
+            Performance.ApplyRendering(this);
             HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(WndProc);
         };
         StateChanged += (_, _) => OnStateChanged();
+        SizeChanged += (_, _) =>
+        {
+            var narrow = ActualWidth < 1080;
+            if (narrow == _autoCompact) return;
+            _autoCompact = narrow;
+            ApplySidebarState();
+        };
         IsVisibleChanged += (_, _) => UpdateActivity();
+        // Give memory back a moment after the window goes away, once pages have stopped their work.
+        _trim.Tick += (_, _) =>
+        {
+            _trim.Stop();
+            if (!_active) Performance.TrimWorkingSet();
+        };
         Loaded += (_, _) => Navigate(Settings.Current.StartPage);
         Closing += OnClosing;
 
@@ -179,9 +198,11 @@ public partial class MainWindow : Window
         _ => "Tools"
     }).ToUpper(System.Globalization.CultureInfo.CurrentUICulture);
 
+    private bool _autoCompact;
+
     private void ApplySidebarState()
     {
-        var compact = Settings.Current.SidebarCollapsed;
+        var compact = Settings.Current.SidebarCollapsed || _autoCompact;
         SidebarColumn.Width = new GridLength(compact ? 62 : 236);
         Ui.SetCompact(NavPanel, compact);
         Ui.SetCompact(NavFooter, compact);
@@ -300,6 +321,7 @@ public partial class MainWindow : Window
     private void OnClose(object sender, RoutedEventArgs e) => Close();
 
     private bool _active = true;
+    private readonly System.Windows.Threading.DispatcherTimer _trim = new() { Interval = TimeSpan.FromSeconds(3) };
 
     /// <summary>A minimized or hidden window stops its page from polling sensors and redrawing.</summary>
     private void UpdateActivity()
@@ -307,8 +329,16 @@ public partial class MainWindow : Window
         var active = IsVisible && WindowState != WindowState.Minimized;
         if (active == _active || _current == null) return;
         _active = active;
-        if (active) (_current.View as INavigable)?.OnNavigatedTo(null);
-        else (_current.View as INavigable)?.OnNavigatedFrom();
+        if (active)
+        {
+            _trim.Stop();
+            (_current.View as INavigable)?.OnNavigatedTo(null);
+        }
+        else
+        {
+            (_current.View as INavigable)?.OnNavigatedFrom();
+            _trim.Start();
+        }
     }
 
     private void OnStateChanged()

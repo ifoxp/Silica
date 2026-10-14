@@ -80,6 +80,8 @@ public partial class App : Application
     {
         var s = Settings.Current;
         var hub = SensorHub.Shared;
+        hub.HostLauncher ??= pipe => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(AppPaths.ExecutablePath,
+            $"--sensor-host {pipe} {Environment.ProcessId}") { UseShellExecute = false, CreateNoWindow = true });
         hub.Interval = TimeSpan.FromMilliseconds(Math.Clamp(s.PollIntervalMs, 250, 10000));
         hub.IncludeVirtualNetwork = s.ShowVirtualNetwork;
         hub.Groups = s.SensorGroups;

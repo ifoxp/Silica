@@ -29,6 +29,15 @@ public partial class DashboardView : UserControl, INavigable
     {
         InitializeComponent();
         _timer.Tick += (_, _) => Tick();
+        // Quick actions move under the title when the page gets narrow, instead of squeezing it.
+        SizeChanged += (_, _) =>
+        {
+            var narrow = ActualWidth < 1000;
+            Grid.SetRow(QuickActions, narrow ? 1 : 0);
+            Grid.SetColumn(QuickActions, narrow ? 0 : 1);
+            QuickActions.HorizontalAlignment = narrow ? HorizontalAlignment.Left : HorizontalAlignment.Stretch;
+            QuickActions.Margin = narrow ? new Thickness(0, 14, 0, 0) : new Thickness(0);
+        };
         Loc.Instance.LanguageChanged += () => { _builtFor = null; UpdateStatic(); Tick(); };
         LoadStaticAsync();
     }
@@ -175,13 +184,15 @@ public partial class DashboardView : UserControl, INavigable
                 if (d.DriveType != DriveType.Fixed || !d.IsReady || d.TotalSize == 0) continue;
                 var usedPct = 100.0 * (d.TotalSize - d.TotalFreeSpace) / d.TotalSize;
                 var label = string.IsNullOrWhiteSpace(d.VolumeLabel) ? d.Name.TrimEnd('\\') : $"{d.Name.TrimEnd('\\')}  {d.VolumeLabel}";
-                var head = new Grid();
-                head.Children.Add(new TextBlock { Style = (Style)FindResource("Text.Base"), Text = label });
-                head.Children.Add(new TextBlock
+                var head = new DockPanel();
+                var free = new TextBlock
                 {
-                    Style = (Style)FindResource("Text.Caption"), HorizontalAlignment = HorizontalAlignment.Right,
+                    Style = (Style)FindResource("Text.Caption"), Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center,
                     Text = Loc.Instance.F("{0} free of {1}", Fmt.Bytes(d.TotalFreeSpace), Fmt.Bytes(d.TotalSize))
-                });
+                };
+                DockPanel.SetDock(free, Dock.Right);
+                head.Children.Add(free);
+                head.Children.Add(new TextBlock { Style = (Style)FindResource("Text.Base"), Text = label });
                 var bar = new ProgressBar { Maximum = 100, Value = usedPct, Margin = new Thickness(0, 6, 0, 0) };
                 if (usedPct > 90) bar.Foreground = (Brush)FindResource("Brush.Danger");
                 else if (usedPct > 80) bar.Foreground = (Brush)FindResource("Brush.Warning");

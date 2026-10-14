@@ -21,16 +21,20 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
         <StackPanel Margin="28,22,28,28">
             <!-- Identity -->
-            <Grid Margin="0,0,0,18">
+            <Grid x:Name="IdentityRow" Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <StackPanel>
                     <TextBlock x:Name="MachineName" Style="{StaticResource Text.Display}" />
                     <TextBlock x:Name="MachineLine" Style="{StaticResource Text.Secondary}" Margin="0,4,0,0" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel x:Name="QuickActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Margin="0,0,8,0" Click="OnGo" Tag="report">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE8A5;" Style="{StaticResource Icon}" FontSize="13" Margin="0,0,8,0" />
@@ -53,12 +57,7 @@
             </Grid>
 
             <!-- CPU + GPU -->
-            <Grid x:Name="TopRow">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="16" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <c:AutoFitPanel MinItemWidth="440" MaxColumns="2">
 
                 <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="cpu">
                     <Grid>
@@ -96,7 +95,7 @@
                                     <TextBlock x:Name="CpuClock" Style="{StaticResource MetricValue}" Text="—" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="{l:T Power}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock Text="{l:T 'Power draw'}" Style="{StaticResource MetricCaption}" />
                                     <TextBlock x:Name="CpuPower" Style="{StaticResource MetricValue}" Text="—" />
                                 </StackPanel>
                                 <StackPanel>
@@ -109,7 +108,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="gpu">
+                <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="gpu">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -145,7 +144,7 @@
                                     <TextBlock x:Name="GpuClock" Style="{StaticResource MetricValue}" Text="—" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="{l:T Power}" Style="{StaticResource MetricCaption}" />
+                                    <TextBlock Text="{l:T 'Power draw'}" Style="{StaticResource MetricCaption}" />
                                     <TextBlock x:Name="GpuPower" Style="{StaticResource MetricValue}" Text="—" />
                                 </StackPanel>
                                 <StackPanel>
@@ -157,17 +156,10 @@
                         <c:Sparkline x:Name="GpuSpark" Grid.Row="2" Height="44" Margin="0,14,0,0" FixedMax="100" Samples="90" />
                     </Grid>
                 </Border>
-            </Grid>
+            </c:AutoFitPanel>
 
             <!-- Memory, storage, network -->
-            <Grid Margin="0,16,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="16" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="16" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <c:AutoFitPanel MinItemWidth="300" MaxColumns="3" Margin="0,16,0,0">
 
                 <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="memory">
                     <StackPanel>
@@ -180,15 +172,15 @@
                             <TextBlock x:Name="RamTotal" Style="{StaticResource Text.Secondary}" FontSize="15" VerticalAlignment="Bottom" Margin="6,0,0,4" />
                         </StackPanel>
                         <ProgressBar x:Name="RamBar" Maximum="100" Margin="0,12,0,0" />
-                        <Grid Margin="0,10,0,0">
+                        <DockPanel Margin="0,10,0,0">
+                            <TextBlock x:Name="RamPercent" DockPanel.Dock="Right" Style="{StaticResource Text.Caption}" Margin="12,0,0,0" />
                             <TextBlock x:Name="RamModules" Style="{StaticResource Text.Caption}" />
-                            <TextBlock x:Name="RamPercent" Style="{StaticResource Text.Caption}" HorizontalAlignment="Right" />
-                        </Grid>
+                        </DockPanel>
                         <c:Sparkline x:Name="RamSpark" Height="40" Margin="0,12,0,0" FixedMax="100" Samples="90" Color="{DynamicResource C.Series2}" />
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="storage">
+                <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="storage">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xEDA2;" Style="{StaticResource CardHeaderIcon}" />
@@ -198,7 +190,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="4" Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="network">
+                <Border Style="{StaticResource Card}" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="network">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE968;" Style="{StaticResource CardHeaderIcon}" />
@@ -227,7 +219,7 @@
                         <TextBlock x:Name="NetAdapter" Style="{StaticResource Text.Caption}" Margin="0,10,0,0" />
                     </StackPanel>
                 </Border>
-            </Grid>
+            </c:AutoFitPanel>
 
             <!-- Temperatures and fans -->
             <Border Style="{StaticResource Card}" Margin="0,16,0,0" Cursor="Hand" MouseLeftButtonUp="OnCardClick" Tag="sensors">

@@ -17,6 +17,9 @@
     <Copyright>Copyright © 2026 Dmytro Chekaliuk</Copyright>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <StartupObject>Silica.Program</StartupObject>
+    <TieredPGO>false</TieredPGO>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

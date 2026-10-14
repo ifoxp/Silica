@@ -26,7 +26,8 @@ public static class AlertToast
             Width = 360,
             SizeToContent = SizeToContent.Height,
             FontFamily = (FontFamily)Application.Current.FindResource("Font.UI"),
-            UseLayoutRounding = true
+            UseLayoutRounding = true,
+            FlowDirection = Silica.Localization.Loc.Instance.FlowDirection
         };
 
         var stack = new StackPanel();

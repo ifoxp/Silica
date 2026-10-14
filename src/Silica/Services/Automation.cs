@@ -60,6 +60,7 @@ public static class Automation
                         hits.Select(h => $"{h.Score:0.00} {h.Kind} {h.Title} | {h.Subtitle}").Prepend($"indexing={SearchService.IsIndexing} pages={PageStore.All.Count()}"));
                 }
                 Capture(window, args.ShotPath!);
+                WriteMemory(args.ShotPath! + ".mem.txt");
             }
             catch (Exception ex)
             {
@@ -68,6 +69,21 @@ public static class Automation
             Application.Current.Shutdown();
         };
         timer.Start();
+    }
+
+    private static void WriteMemory(string path)
+    {
+        var p = System.Diagnostics.Process.GetCurrentProcess();
+        var before = GC.GetTotalMemory(false);
+        var after = GC.GetTotalMemory(true);
+        var info = GC.GetGCMemoryInfo();
+        File.WriteAllLines(path,
+        [
+            $"working set {p.WorkingSet64 >> 20} MB, private {p.PrivateMemorySize64 >> 20} MB",
+            $"managed before GC {before >> 20} MB, after full GC {after >> 20} MB, heap {info.HeapSizeBytes >> 20} MB, committed {info.TotalCommittedBytes >> 20} MB",
+            $"threads {p.Threads.Count}, handles {p.HandleCount}",
+            $"render {(PresentationSource.FromVisual(Application.Current.MainWindow) as HwndSource)?.CompositionTarget?.RenderMode}, sensors {Silica.Core.Sensors.SensorHub.Shared.State}, languages loaded {Silica.Localization.Loc.Instance.Available.Count(l => l.IsLoaded)}/{Silica.Localization.Loc.Instance.Available.Count}"
+        ]);
     }
 
     private static void Capture(Window window, string path)

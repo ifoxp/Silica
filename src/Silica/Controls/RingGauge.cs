@@ -21,6 +21,7 @@ public sealed class RingGauge : FrameworkElement
 
     public RingGauge()
     {
+        FlowDirection = FlowDirection.LeftToRight;
         Loaded += (_, _) => ThemeService.Changed += InvalidateVisual;
         Unloaded += (_, _) => ThemeService.Changed -= InvalidateVisual;
     }

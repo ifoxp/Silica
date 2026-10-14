@@ -29,6 +29,7 @@ public sealed class LineChart : FrameworkElement
         Loaded += (_, _) => ThemeService.Changed += InvalidateVisual;
         Unloaded += (_, _) => ThemeService.Changed -= InvalidateVisual;
         ClipToBounds = true;
+        FlowDirection = FlowDirection.LeftToRight;
     }
 
     /// <summary>How many samples fit across the chart.</summary>

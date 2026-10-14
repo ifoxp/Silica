@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
+using Silica.Controls;
 using Silica.Core.Bench;
 using Silica.Localization;
 using Silica.Services;
@@ -51,14 +52,14 @@ public partial class BenchmarksView : UserControl, INavigable
                 }).ToUpper(CultureInfo.CurrentUICulture),
                 Margin = new Thickness(2, Body.Children.Count == 0 ? 0 : 10, 0, 10)
             });
-            var grid = new UniformGrid2(2, 16);
+            var grid = new AutoFitPanel { MinItemWidth = 380, MaxColumns = 2, Margin = new Thickness(0, 0, 0, 16) };
             foreach (var bench in group)
             {
                 var card = new BenchCard(this, bench);
                 _cards[bench.Id] = card;
-                grid.Add(card.Root);
+                grid.Children.Add(card.Root);
             }
-            Body.Children.Add(grid.Root);
+            Body.Children.Add(grid);
         }
         RefreshCards();
     }
@@ -187,33 +188,6 @@ public partial class BenchmarksView : UserControl, INavigable
         };
         menu.Items.Add(clear);
         menu.IsOpen = true;
-    }
-
-    /// <summary>Two equal columns of cards that fall back to one on narrow windows.</summary>
-    private sealed class UniformGrid2
-    {
-        private readonly int _gap;
-        public Grid Root { get; } = new();
-        private int _count;
-
-        public UniformGrid2(int columns, int gap)
-        {
-            _gap = gap;
-            Root.ColumnDefinitions.Add(new ColumnDefinition());
-            Root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gap) });
-            Root.ColumnDefinitions.Add(new ColumnDefinition());
-        }
-
-        public void Add(FrameworkElement e)
-        {
-            var row = _count / 2;
-            if (Root.RowDefinitions.Count <= row) Root.RowDefinitions.Add(new RowDefinition());
-            Grid.SetRow(e, row);
-            Grid.SetColumn(e, _count % 2 == 0 ? 0 : 2);
-            e.Margin = new Thickness(0, 0, 0, _gap);
-            Root.Children.Add(e);
-            _count++;
-        }
     }
 }
 

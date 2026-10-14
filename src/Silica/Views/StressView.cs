@@ -103,7 +103,7 @@ public sealed class StressView : UserControl, INavigable
         header.Children.Add(_start);
 
         // Component toggles
-        var toggles = new UniformGrid { Columns = 5, Margin = new Thickness(0, 0, 0, 16) };
+        var toggles = new AutoFitPanel { MinItemWidth = 160, MaxColumns = 5, Spacing = 10, Margin = new Thickness(0, 0, 0, 16) };
         var previous = _toggles.ToDictionary(p => p.Key, p => p.Value.IsChecked == true);
         _toggles.Clear();
         foreach (var (component, title, hint, icon) in Components)
@@ -119,7 +119,7 @@ public sealed class StressView : UserControl, INavigable
             var toggle = new ToggleButton
             {
                 Style = R<Style>("Chip"), Content = stack, HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0, 0, 10, 0),
+                Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0),
                 IsChecked = previous.TryGetValue(component, out var was) ? was : component is StressComponent.Cpu or StressComponent.Fpu or StressComponent.Cache,
                 IsEnabled = !_engine.IsRunning
             };
@@ -137,7 +137,7 @@ public sealed class StressView : UserControl, INavigable
         _iterations = Metric();
         _errors = Metric();
         _throttle = Metric();
-        var metrics = new UniformGrid { Columns = 4, Margin = new Thickness(0, 14, 0, 0) };
+        var metrics = new AutoFitPanel { MinItemWidth = 150, MaxColumns = 4, Spacing = 12, Margin = new Thickness(0, 14, 0, 0) };
         metrics.Children.Add(Labeled(loc.T("Elapsed"), _elapsed));
         metrics.Children.Add(Labeled(loc.T("Work units checked"), _iterations));
         metrics.Children.Add(Labeled(loc.T("Errors"), _errors));
@@ -210,7 +210,7 @@ public sealed class StressView : UserControl, INavigable
         {
             ("Temperature", SensorKind.Temperature, new[] { k.CpuTemp, k.GpuTemp }.OfType<SensorReading>().ToList()),
             ("Clock", SensorKind.Clock, new[] { k.CpuClock }.OfType<SensorReading>().ToList()),
-            ("Power", SensorKind.Power, new[] { k.CpuPower }.OfType<SensorReading>().ToList()),
+            ("Power draw", SensorKind.Power, new[] { k.CpuPower }.OfType<SensorReading>().ToList()),
             ("Load", SensorKind.Load, new[] { k.CpuLoad }.OfType<SensorReading>().ToList())
         };
         var shown = groups.Where(g => g.Readings.Count > 0).ToList();
@@ -226,11 +226,11 @@ public sealed class StressView : UserControl, INavigable
             return;
         }
 
-        var grid = new UniformGrid { Columns = Math.Min(2, shown.Count) };
+        var grid = new AutoFitPanel { MinItemWidth = 360, MaxColumns = 2, Spacing = 12 };
         var colorIndex = 0;
         foreach (var (title, kind, readings) in shown)
         {
-            var stack = new StackPanel { Margin = new Thickness(0, 0, 12, 8) };
+            var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
             stack.Children.Add(new TextBlock { Style = (Style)Application.Current.FindResource("Text.Caption"), Text = Loc.Instance.T(title) });
             var chart = new LineChart
             {

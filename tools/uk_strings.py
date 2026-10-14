@@ -495,7 +495,7 @@ UK = {
     "Other adapters": "Інші адаптери",
     "Overlay": "Оверлей",
     "Overview": "Огляд",
-    "Owned": "Власні",
+    "Owned": "Має власника",
     "Package": "Пакет",
     "Page": "Сторінка",
     "Page file managed by system": "Файлом підкачки керує система",
@@ -988,6 +988,11 @@ UK = {
     "Collecting data...": "Збираю дані...",
     "Get PawnIO": "Завантажити PawnIO",
     "Processor temperatures and motherboard sensors need the free PawnIO driver. Install it once and restart Silica.": "Температури процесора й датчики материнської плати потребують безкоштовного драйвера PawnIO. Встановіть його один раз і перезапустіть Silica.",
+    "Power draw": "Потужність",
+    "Electric current": "Струм",
+    "Drawing": "Відтворення інтерфейсу",
+    "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens": "Відтворення процесором займає приблизно на 50 МБ менше пам'яті; відеокарта плавніша на екранах 4K",
+    "Stop recording": "Зупинити запис",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:
