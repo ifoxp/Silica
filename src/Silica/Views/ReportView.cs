@@ -63,7 +63,8 @@ public sealed class ReportView : UserControl, INavigable
             formats.Children.Add(rb);
         }
         var open = new CheckBox { Content = loc.T("Open when ready"), IsChecked = _openWhenReady, Margin = new Thickness(0, 14, 0, 0) };
-        open.Click += (_, _) => _openWhenReady = open.IsChecked == true;
+        open.Checked += (_, _) => _openWhenReady = true;
+        open.Unchecked += (_, _) => _openWhenReady = false;
 
         _create = new Button { Style = R<Style>("Button.Accent"), Content = loc.T("Create report"), MinWidth = 140, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 18, 0, 0), IsEnabled = !_busy };
         _create.Click += async (_, _) => await Create();
@@ -106,7 +107,8 @@ public sealed class ReportView : UserControl, INavigable
             {
                 var cb = new CheckBox { Content = loc.T(p.Title), IsChecked = !_unchecked.Contains(p.Id), Margin = new Thickness(0, 0, 12, 10) };
                 var id = p.Id;
-                cb.Click += (_, _) => { if (cb.IsChecked == true) _unchecked.Remove(id); else _unchecked.Add(id); };
+                cb.Checked += (_, _) => _unchecked.Remove(id);
+                cb.Unchecked += (_, _) => _unchecked.Add(id);
                 _checks[p.Id] = cb;
                 grid.Children.Add(cb);
             }

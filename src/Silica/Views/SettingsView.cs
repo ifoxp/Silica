@@ -20,15 +20,22 @@ public sealed class SettingsView : UserControl, INavigable
     private ScrollViewer _scroll = null!;
     private bool _building;
 
+    private IDisposable? _sensors;
+
     public SettingsView()
     {
         Content = Build();
+        // Names of tray and overlay sensors are only known once the hardware has been read.
+        SensorHub.Shared.DevicesChanged += () => Dispatcher.BeginInvoke(RefreshSensorLists);
         Loc.Instance.LanguageChanged += () => Content = Build();
         ThemeService.Changed += () => { if (!_building) Content = Build(); };
     }
 
     public void OnNavigatedTo(string? target)
     {
+        var s = Settings.Current;
+        if (_sensors == null && s.TraySensors.Count + s.OverlaySensors.Count > 0 && SensorHub.Shared.State != SensorHubState.Ready)
+            _sensors = SensorHub.Shared.Subscribe();
         Content = Build();
         if (target != null && _sections.TryGetValue(target, out var section))
             Dispatcher.BeginInvoke(() =>
@@ -48,7 +55,11 @@ public sealed class SettingsView : UserControl, INavigable
             }, System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
-    public void OnNavigatedFrom() { }
+    public void OnNavigatedFrom()
+    {
+        _sensors?.Dispose();
+        _sensors = null;
+    }
 
     private static T R<T>(string key) => (T)Application.Current.FindResource(key);
     private static string T(string key) => Loc.Instance.T(key);
@@ -57,6 +68,7 @@ public sealed class SettingsView : UserControl, INavigable
     {
         _building = true;
         _sections.Clear();
+        _sensorLists.Clear();
         var s = Settings.Current;
 
         var header = new Grid { Margin = new Thickness(28, 22, 28, 14) };
@@ -153,11 +165,13 @@ public sealed class SettingsView : UserControl, INavigable
         {
             var chip = new ToggleButton { Style = R<Style>("Chip"), Content = T(title), IsChecked = s.SensorGroups.HasFlag(g) };
             var group = g;
-            chip.Click += (_, _) =>
+            void Changed(object sender, RoutedEventArgs e)
             {
                 s.SensorGroups = chip.IsChecked == true ? s.SensorGroups | group : s.SensorGroups & ~group;
                 Settings.Touch();
-            };
+            }
+            chip.Checked += Changed;
+            chip.Unchecked += Changed;
             groups.Children.Add(chip);
         }
         body.Children.Add(Section("monitoring", "Monitoring", "",
@@ -200,7 +214,7 @@ public sealed class SettingsView : UserControl, INavigable
         DockPanel.SetDock(browse, Dock.Right);
         folderRow.Children.Add(browse);
         folderRow.Children.Add(folderText);
-        var logInterval = Segmented([("1 s", 1), ("2 s", 2), ("5 s", 5), ("10 s", 10), ("60 s", 60)], s.LogIntervalSeconds, v => { s.LogIntervalSeconds = v; Settings.Touch(); });
+        var logInterval = Segmented(new[] { 1, 2, 5, 10, 60 }.Select(n => (Loc.Instance.F("{0} s", n), n)), s.LogIntervalSeconds, v => { s.LogIntervalSeconds = v; Settings.Touch(); });
         body.Children.Add(Section("logging", "Sensor logging", "",
             Switch("Record sensors to a CSV file", "Opens in Excel or any spreadsheet", Monitoring.IsLogging, v =>
             {
@@ -219,7 +233,8 @@ public sealed class SettingsView : UserControl, INavigable
             remove.Click += (_, _) => { s.Alerts.Remove(rule); Settings.Touch(); Content = Build(); };
             DockPanel.SetDock(remove, Dock.Right);
             var enabled = new CheckBox { IsChecked = rule.Enabled, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
-            enabled.Click += (_, _) => { rule.Enabled = enabled.IsChecked == true; Settings.Touch(); };
+            enabled.Checked += (_, _) => { rule.Enabled = true; Settings.Touch(); };
+            enabled.Unchecked += (_, _) => { rule.Enabled = false; Settings.Touch(); };
             DockPanel.SetDock(enabled, Dock.Left);
             line.Children.Add(remove);
             line.Children.Add(enabled);
@@ -230,7 +245,7 @@ public sealed class SettingsView : UserControl, INavigable
             });
             rules.Children.Add(line);
         }
-        var cooldown = Segmented([("1 min", 1), ("5 min", 5), ("15 min", 15), ("60 min", 60)], s.AlertCooldownMinutes, v => { s.AlertCooldownMinutes = v; Settings.Touch(); });
+        var cooldown = Segmented(new[] { 1, 5, 15, 60 }.Select(n => (Loc.Instance.F("{0} min", n), n)), s.AlertCooldownMinutes, v => { s.AlertCooldownMinutes = v; Settings.Touch(); });
         body.Children.Add(Section("alerts", "Alerts", "",
             Switch("Show alerts", "A notification appears when a sensor crosses its limit", s.AlertsEnabled, v => s.AlertsEnabled = v),
             Row("Repeat the same alert at most every", null, cooldown),
@@ -332,11 +347,14 @@ public sealed class SettingsView : UserControl, INavigable
         if (hint != null)
             labels.Children.Add(new TextBlock { Style = R<Style>("Text.Caption"), Text = T(hint), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None, Margin = new Thickness(0, 2, 0, 0) });
         var cb = new CheckBox { Style = R<Style>("Switch"), Content = labels, IsChecked = value, Margin = new Thickness(0, 10, 0, 10), HorizontalContentAlignment = HorizontalAlignment.Stretch };
-        cb.Click += (_, _) =>
+        System.Windows.Automation.AutomationProperties.SetName(cb, T(title));
+        void Changed(object sender, RoutedEventArgs e)
         {
             set(cb.IsChecked == true);
             if (touch) Settings.Touch();
-        };
+        }
+        cb.Checked += Changed;
+        cb.Unchecked += Changed;
         return cb;
     }
 
@@ -416,26 +434,40 @@ public sealed class SettingsView : UserControl, INavigable
         return row;
     }
 
+    private readonly List<(WrapPanel Host, List<string> Ids)> _sensorLists = [];
+
+    private void RefreshSensorLists()
+    {
+        foreach (var (host, ids) in _sensorLists) FillSensorList(host, ids);
+    }
+
     private FrameworkElement SensorList(List<string> ids)
     {
         var wrap = new WrapPanel();
+        _sensorLists.Add((wrap, ids));
+        FillSensorList(wrap, ids);
+        return wrap;
+    }
+
+    private void FillSensorList(WrapPanel wrap, List<string> ids)
+    {
+        wrap.Children.Clear();
         if (ids.Count == 0)
         {
             wrap.Children.Add(new TextBlock { Style = R<Style>("Text.Secondary"), Text = T("None") });
-            return wrap;
+            return;
         }
         foreach (var id in ids.ToList())
         {
             var reading = SensorHub.Shared.Find(id);
-            var name = reading == null ? id : $"{T(reading.Name)} · {reading.Device.Name}";
+            var name = reading == null ? T("Reading sensors...") : $"{T(reading.Name)} · {reading.Device.Name}";
             var panel = new StackPanel { Orientation = Orientation.Horizontal };
             panel.Children.Add(new TextBlock { Style = R<Style>("Text.Caption"), Text = name, VerticalAlignment = VerticalAlignment.Center, MaxWidth = 280 });
             var close = new Button { Style = R<Style>("Button.Icon"), Width = 22, Height = 22, FontSize = 9, Content = "", ToolTip = T("Remove"), Margin = new Thickness(4, 0, 0, 0) };
-            close.Click += (_, _) => { ids.Remove(id); Settings.Touch(); Content = Build(); };
+            close.Click += (_, _) => { ids.Remove(id); Settings.Touch(); FillSensorList(wrap, ids); };
             panel.Children.Add(close);
             wrap.Children.Add(new Border { Background = R<Brush>("Brush.SurfaceAlt"), CornerRadius = new CornerRadius(13), Padding = new Thickness(10, 2, 4, 2), Margin = new Thickness(0, 0, 6, 6), Child = panel });
         }
-        return wrap;
     }
 
     private void CreateTemplate()

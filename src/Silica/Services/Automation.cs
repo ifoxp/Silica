@@ -34,7 +34,8 @@ public static class Automation
         window.Top = 20;
         window.Topmost = true;
         window.Show();
-        window.Navigate(args.Page ?? "dashboard");
+        var page = (args.Page ?? "dashboard").Split(':', 2);
+        window.Navigate(page[0], page.Length > 1 ? page[1] : null);
 
         if (args.Search is { } query)
         {

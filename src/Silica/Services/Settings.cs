@@ -91,8 +91,9 @@ public static class Settings
     {
         try
         {
-            if (File.Exists(AppPaths.SettingsFile))
-                Current = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(AppPaths.SettingsFile), Json) ?? new AppSettings();
+            // An empty file is how portable mode is switched on, so it simply means defaults.
+            var text = File.Exists(AppPaths.SettingsFile) ? File.ReadAllText(AppPaths.SettingsFile) : "";
+            Current = string.IsNullOrWhiteSpace(text) ? new AppSettings() : JsonSerializer.Deserialize<AppSettings>(text, Json) ?? new AppSettings();
         }
         catch (Exception ex)
         {

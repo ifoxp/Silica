@@ -93,7 +93,16 @@
             </StackPanel>
         </Grid>
 
-        <WrapPanel x:Name="KindChips" Grid.Row="1" Margin="28,0,28,8" />
+        <StackPanel Grid.Row="1" Margin="28,0,28,8">
+            <Border x:Name="DriverHint" Visibility="Collapsed" Margin="0,0,0,10" Padding="14,10" CornerRadius="8" Background="{DynamicResource Brush.AccentSubtle}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{l:T 'Get PawnIO'}" Click="OnGetDriver" Margin="16,0,0,0" />
+                    <TextBlock Style="{StaticResource Text.Base}" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Text="{l:T 'Processor temperatures and motherboard sensors need the free PawnIO driver. Install it once and restart Silica.'}" />
+                </DockPanel>
+            </Border>
+            <WrapPanel x:Name="KindChips" />
+        </StackPanel>
 
         <Border x:Name="ChartPanel" Grid.Row="2" Style="{StaticResource Card}" Margin="28,4,28,12" Padding="16,12,16,8">
             <StackPanel>

@@ -986,6 +986,8 @@ UK = {
     "Minimize": "Згорнути",
     "Maximize": "Розгорнути",
     "Collecting data...": "Збираю дані...",
+    "Get PawnIO": "Завантажити PawnIO",
+    "Processor temperatures and motherboard sensors need the free PawnIO driver. Install it once and restart Silica.": "Температури процесора й датчики материнської плати потребують безкоштовного драйвера PawnIO. Встановіть його один раз і перезапустіть Silica.",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

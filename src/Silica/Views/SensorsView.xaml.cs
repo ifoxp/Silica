@@ -37,6 +37,7 @@ public partial class SensorsView : UserControl, INavigable
 
     public void OnNavigatedTo(string? target)
     {
+        DriverHint.Visibility = Elevation.IsElevated && !SensorHub.DriverInstalled ? Visibility.Visible : Visibility.Collapsed;
         _subscription ??= SensorHub.Shared.Subscribe();
         _timer.Interval = SensorHub.Shared.Interval;
         _timer.Start();
@@ -251,6 +252,12 @@ public partial class SensorsView : UserControl, INavigable
                 c.Refresh(SensorHub.Shared.Interval.TotalSeconds);
             }
         }
+    }
+
+    private void OnGetDriver(object sender, RoutedEventArgs e)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://pawnio.eu") { UseShellExecute = true }); }
+        catch (Exception ex) { Log.Warn($"Browser: {ex.Message}"); }
     }
 
     private void OnReset(object sender, RoutedEventArgs e)
