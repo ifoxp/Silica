@@ -44,7 +44,7 @@ public sealed class DisplaysProvider : IInfoProvider
                 g.Add("Product code", m.ProductCode);
                 g.Add("Serial number", m.Serial);
                 if (m.Year is > 1990)
-                    g.Add("Manufactured", m.Week is > 0 and < 54 ? $"{m.Year}, week {m.Week}" : m.Year.ToString());
+                    g.Add("Manufactured", m.Week is > 0 and < 54 ? Fmt.T("{0}, week {1}", m.Year, m.Week) : m.Year.ToString());
                 if (size.TryGetValue(m.Instance, out var s))
                 {
                     var hcm = s.Long("MaxHorizontalImageSize") ?? 0;
@@ -71,7 +71,7 @@ public sealed class DisplaysProvider : IInfoProvider
             if (primary == null) return;
             var t = b.Table("Supported modes", "Resolution", "Max refresh", "Refresh rates");
             foreach (var (w, h, rates) in Modes(primary.Device))
-                t.Row(Hw.Resolution(w, h), $"{rates.Max()} Hz", string.Join(", ", rates) + " Hz");
+                t.Row(Hw.Resolution(w, h), $"{rates.Max()} {Fmt.Unit("Hz")}", string.Join(", ", rates) + " " + Fmt.Unit("Hz"));
         });
 
         if (outputs.Count == 0 && monitors.Count == 0) b.Warn("No monitors were detected");
@@ -86,8 +86,8 @@ public sealed class DisplaysProvider : IInfoProvider
         if (m.PelsWidth > 0)
         {
             g.Add("Resolution", Hw.Resolution(m.PelsWidth, m.PelsHeight));
-            g.Add("Refresh rate", m.DisplayFrequency > 1 ? $"{m.DisplayFrequency} Hz" : null);
-            g.Add("Color depth", m.BitsPerPel > 0 ? $"{m.BitsPerPel}-bit" : null);
+            g.Add("Refresh rate", m.DisplayFrequency > 1 ? $"{m.DisplayFrequency} {Fmt.Unit("Hz")}" : null);
+            g.Add("Color depth", m.BitsPerPel > 0 ? Fmt.T("{0}-bit", m.BitsPerPel) : null);
             g.Add("Position", $"{m.PositionX}, {m.PositionY}");
             g.Word("Orientation", m.DisplayOrientation switch { 0 => "Landscape", 1 => "Portrait", 2 => "Landscape (flipped)", 3 => "Portrait (flipped)", _ => null });
         }

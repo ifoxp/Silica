@@ -10,6 +10,15 @@ public static class Fmt
     /// <summary>Translates a unit symbol ("GB", "MHz", "d"); the app plugs its language here.</summary>
     public static Func<string, string> Unit { get; set; } = u => u;
 
+    /// <summary>Translates an English text template such as "{0}, week {1}".</summary>
+    public static Func<string, string> Text { get; set; } = s => s;
+
+    /// <summary>Plural-aware count text such as "{0} threads".</summary>
+    public static Func<long, string, string> Plural { get; set; } = (n, key) => string.Format(CultureInfo.CurrentCulture, key, n);
+
+    public static string T(string template, params object?[] args) =>
+        string.Format(CultureInfo.CurrentCulture, Text(template), args);
+
     /// <summary>1024-based size, e.g. "15.9 GB".</summary>
     public static string Bytes(double bytes, int decimals = 1)
     {

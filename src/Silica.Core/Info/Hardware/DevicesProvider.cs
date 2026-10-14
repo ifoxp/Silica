@@ -81,6 +81,6 @@ public sealed class DevicesProvider : IInfoProvider
         48 => "Driver blocked from starting",
         49 => "Registry size limit exceeded",
         52 => "Driver signature cannot be verified",
-        _ => $"Error {code}"
+        _ => Fmt.T("Error {0}", code)
     };
 }

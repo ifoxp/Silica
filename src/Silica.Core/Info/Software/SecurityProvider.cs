@@ -32,7 +32,7 @@ public sealed class SecurityProvider : IInfoProvider
                 .Add("Running mode", r.Str("AMRunningMode"))
                 .Add("Signature version", r.Str("AntivirusSignatureVersion"))
                 .Add("Signatures updated", Fmt.DateTime(ValidDate(r.Date("AntivirusSignatureLastUpdated"))))
-                .Add("Signature age", age is >= 0 and < 10000 ? $"{age} d" : null)
+                .Add("Signature age", age is >= 0 and < 10000 ? $"{age} {Fmt.Unit("d")}" : null)
                 .Add("Engine version", r.Str("AMEngineVersion"))
                 .Add("Product version", r.Str("AMProductVersion"))
                 .Add("Last quick scan", Fmt.DateTime(ValidDate(r.Date("QuickScanEndTime"))))

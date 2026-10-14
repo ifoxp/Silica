@@ -98,7 +98,7 @@ public sealed class MemoryProvider : IInfoProvider
 
     private static string? Mb(long? mb) => mb is { } v ? Fmt.Bytes(v * 1024.0 * 1024) : null;
 
-    private static string? Rate(long? mts) => mts is > 0 ? $"{mts} MT/s" : null;
+    private static string? Rate(long? mts) => mts is > 0 ? $"{mts} {Fmt.Unit("MT/s")}" : null;
 
     internal sealed record Module(string? Slot, ulong Capacity, string? Type, long? Speed, long? ConfiguredSpeed,
         string? Manufacturer, string? PartNumber, string? Serial, string? FormFactor, int? Ranks, long? VoltageMv);

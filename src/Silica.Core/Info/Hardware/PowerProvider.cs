@@ -74,14 +74,14 @@ public sealed class PowerProvider : IInfoProvider
             g.Add("Chemistry", Chemistry(s.Long("Chemistry")));
             var design = s.Long("DesignedCapacity");
             var fullCap = full.GetValueOrDefault(inst)?.Long("FullChargedCapacity");
-            g.Add("Design capacity", design is > 0 ? $"{Fmt.Number(design.Value)} mWh" : null);
-            g.Add("Full charge capacity", fullCap is > 0 ? $"{Fmt.Number(fullCap.Value)} mWh" : null);
+            g.Add("Design capacity", design is > 0 ? $"{Fmt.Number(design.Value)} {Fmt.Unit("mWh")}" : null);
+            g.Add("Full charge capacity", fullCap is > 0 ? $"{Fmt.Number(fullCap.Value)} {Fmt.Unit("mWh")}" : null);
             if (design is > 0 && fullCap is > 0) g.Add("Health", Fmt.Percent(100.0 * fullCap.Value / design.Value, 1));
             if (cycles.GetValueOrDefault(inst)?.Long("CycleCount") is > 0 and var c) g.Add("Cycle count", c);
 
             if (status.GetValueOrDefault(inst) is { } st)
             {
-                if (st.Long("RemainingCapacity") is > 0 and var rem) g.Add("Remaining capacity", $"{Fmt.Number(rem)} mWh");
+                if (st.Long("RemainingCapacity") is > 0 and var rem) g.Add("Remaining capacity", $"{Fmt.Number(rem)} {Fmt.Unit("mWh")}");
                 if (st.Long("Voltage") is > 0 and var v) g.Add("Voltage", $"{v / 1000.0:0.000} V");
                 if (st.Long("ChargeRate") is > 0 and var cr) g.Add("Charge rate", $"{cr / 1000.0:0.0} W");
                 if (st.Long("DischargeRate") is > 0 and var dr) g.Add("Discharge rate", $"{dr / 1000.0:0.0} W");

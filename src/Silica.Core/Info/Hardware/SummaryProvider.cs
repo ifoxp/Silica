@@ -42,7 +42,7 @@ public sealed class SummaryProvider : IInfoProvider
             var g = b.Group("Hardware");
             var cpu = Wmi.First("SELECT Name, NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor");
             if (cpu?.Str("Name") is { } cpuName)
-                g.Add("Processor", $"{cpuName} ({cpu.Int("NumberOfCores")} cores, {cpu.Int("NumberOfLogicalProcessors")} threads)");
+                g.Add("Processor", $"{cpuName} ({Fmt.Plural(cpu.Int("NumberOfCores") ?? 0, "{0} cores")}, {Fmt.Plural(cpu.Int("NumberOfLogicalProcessors") ?? 0, "{0} threads")})");
 
             var board = Wmi.First("SELECT Manufacturer, Product FROM Win32_BaseBoard");
             g.Add("Motherboard", Hw.Join([board?.Str("Manufacturer"), board?.Str("Product")], " "));
@@ -90,7 +90,7 @@ public sealed class SummaryProvider : IInfoProvider
                 g.Add("Disk", Hw.Join([d.Name, d.Size > 0 ? $"({Fmt.DecimalBytes(d.Size)}{(kind.Length > 0 ? ", " + kind : "")})" : null], " "));
             }
             foreach (var v in DriveInfo.GetDrives().Where(v => v.DriveType == DriveType.Fixed && v.IsReady))
-                g.Add("Volume", $"{v.Name.TrimEnd('\\')} {v.VolumeLabel} ({Fmt.Bytes(v.TotalFreeSpace)} free of {Fmt.Bytes(v.TotalSize)})".Replace("  ", " "));
+                g.Add("Volume", $"{v.Name.TrimEnd('\\')} {v.VolumeLabel} ({Fmt.T("{0} free of {1}", Fmt.Bytes(v.TotalFreeSpace), Fmt.Bytes(v.TotalSize))})".Replace("  ", " "));
         });
 
         b.Try("Network", () =>

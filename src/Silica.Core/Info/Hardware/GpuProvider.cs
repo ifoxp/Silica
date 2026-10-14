@@ -54,7 +54,7 @@ public sealed class GpuProvider : IInfoProvider
         {
             var mode = Hw.Resolution(w.Value, h.Value);
             if (r.Long("CurrentRefreshRate") is > 1 and var hz) mode += $" @ {hz} Hz";
-            if (r.Long("CurrentBitsPerPixel") is > 0 and var bits) mode += $", {bits}-bit";
+            if (r.Long("CurrentBitsPerPixel") is > 0 and var bits) mode += ", " + Fmt.T("{0}-bit", bits);
             g.Add("Current mode", mode);
         }
 

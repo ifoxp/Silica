@@ -61,6 +61,7 @@ EN_VALUES = {
     "{0} results": "{0} result|{0} results",
     "{0} threads": "{0} thread|{0} threads",
     "{0} times": "{0} time|{0} times",
+    "{0} cores": "{0} core|{0} cores",
 }
 
 EN_SYNONYMS = {
@@ -98,6 +99,12 @@ EN_SYNONYMS = {
     "Alerts": ["notification", "overheat", "warning"],
     "Start with Windows": ["autostart", "boot"],
 }
+
+# Templates the core library passes to Fmt for translation.
+FMT_CALL = re.compile(r'Fmt\.(?:T|Text|Unit)\("((?:[^"\\]|\\.)*)"|Fmt\.Plural\([^,]+,\s*"((?:[^"\\]|\\.)*)"')
+
+BUILDER_CALL = re.compile(r'\.(?:Add|Flag|Word|Group)\("((?:[^"\\]|\\.)*)"')
+TABLE_CALL = re.compile(r'\.Table\(([^;]*?)\)\s*;', re.S)
 
 SEARCH_KEYWORDS = re.compile(r'\("[^"]+", "[a-z]+", "([a-z ]+)"\)')
 
@@ -150,6 +157,15 @@ def static_keys() -> set[str]:
                 s = s[:-2]
             if looks_like_text(s) and s not in IGNORE and s not in keywords:
                 keys.add(s)
+    for f in (CORE / "Info").rglob("*.cs"):
+        text = f.read_text(encoding="utf-8")
+        for m in FMT_CALL.finditer(text):
+            keys.add(unescape(m.group(1) or m.group(2)))
+        # Labels that only show up when a value exists (a laptop battery, a failing disk...).
+        for m in BUILDER_CALL.finditer(text):
+            keys.add(unescape(m.group(1)))
+        for m in TABLE_CALL.finditer(text):
+            keys.update(x for x in map(unescape, LITERAL.findall(m.group(1))) if looks_like_text(x))
     return keys
 
 

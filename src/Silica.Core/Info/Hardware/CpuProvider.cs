@@ -40,7 +40,7 @@ public sealed class CpuProvider : IInfoProvider
             g.Add("Base clock", Fmt.Mhz(id?.BaseMhz is > 0 ? id.BaseMhz : cpu?.Long("MaxClockSpeed")));
             g.Add("Max clock", Fmt.Mhz(id?.MaxMhz));
             g.Add("Bus clock", Fmt.Mhz(id?.BusMhz is > 0 ? id.BusMhz : cpu?.Long("ExtClock")));
-            g.Add("Address width", cpu?.Int("AddressWidth") is { } w ? $"{w}-bit" : null);
+            g.Add("Address width", cpu?.Int("AddressWidth") is { } w ? Fmt.T("{0}-bit", w) : null);
         });
 
         if (id != null)
@@ -66,8 +66,8 @@ public sealed class CpuProvider : IInfoProvider
             foreach (var (c, count) in topo.Caches)
             {
                 t.Row($"L{c.Level}", c.Type, Fmt.Bytes(c.Size), count, Fmt.Bytes((double)c.Size * count),
-                    c.Associativity == 0xFF ? "Fully associative" : $"{c.Associativity}-way",
-                    $"{c.LineSize} B", c.SharedBy == 1 ? "1 thread" : $"{c.SharedBy} threads");
+                    c.Associativity == 0xFF ? Fmt.Text("Fully associative") : Fmt.T("{0}-way", c.Associativity),
+                    $"{c.LineSize} {Fmt.Unit("B")}", Fmt.Plural(c.SharedBy, "{0} threads"));
             }
         });
 

@@ -278,7 +278,7 @@ public partial class InfoPageView : UserControl, INavigable
                 ElementStyle = (Style)FindResource("CellText")
             });
         }
-        var rows = block.Rows.Select(r => r.Select(TranslateCell).ToArray()).ToList();
+        var rows = block.Rows.Select(r => r.Select((cell, i) => ValueVocabulary.Translate(cell, i < block.Columns.Length ? block.Columns[i] : "")).ToArray()).ToList();
         var view = new ListCollectionView(rows);
         grid.ItemsSource = view;
         grid.Sorting += (_, e) =>
@@ -315,17 +315,6 @@ public partial class InfoPageView : UserControl, INavigable
         var len = Math.Max(typical, Loc.Instance.T(block.Columns[column]).Length + 2);
         return new DataGridLength(Math.Clamp(len / 14.0, 0.55, 2.6), DataGridLengthUnitType.Star);
     }
-
-    private static readonly HashSet<string> ValueWords = new(StringComparer.Ordinal)
-    {
-        "Yes", "No", "Enabled", "Disabled", "Running", "Stopped", "Paused", "OK", "Active", "Inactive", "Connected", "Disconnected",
-        "Up", "Down", "Automatic", "Automatic (delayed)", "Manual", "Unknown", "Healthy", "Warning", "Unhealthy", "None", "Ready",
-        "Playback", "Recording", "Present", "Not present", "Default", "System", "User", "Succeeded", "Succeeded with errors",
-        "Failed", "Aborted", "Error", "Critical", "Information", "On", "Off", "Virtual", "Physical", "Boot", "Unplugged", "Degraded",
-        "Signed", "Unsigned", "Queued", "Idle", "Printing", "Offline", "Online", "Not started", "Supported", "Not supported"
-    };
-
-    private static string TranslateCell(string cell) => ValueWords.Contains(cell) ? Loc.Instance.T(cell) : cell;
 
     private void UpdateTableHeights()
     {

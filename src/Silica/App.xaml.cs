@@ -29,6 +29,8 @@ public partial class App : Application
         Settings.Persist = !Args.IsAutomation && Args.DumpStringsPath == null;
         Loc.Instance.Use(Args.Language ?? Settings.Current.Language);
         Silica.Core.Util.Fmt.Unit = Loc.Instance.T;
+        Silica.Core.Util.Fmt.Text = Loc.Instance.T;
+        Silica.Core.Util.Fmt.Plural = Loc.Instance.N;
         Loc.Instance.LanguageChanged += PageStore.Clear;
 
         if (Args.DumpStringsPath != null)

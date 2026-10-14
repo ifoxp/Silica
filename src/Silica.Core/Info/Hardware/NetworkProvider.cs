@@ -79,8 +79,8 @@ public sealed partial class NetworkProvider : IInfoProvider
             g.Add("Band", wifi.Band);
             g.Add("Channel", wifi.Channel);
             g.Add("Signal", wifi.Rssi is { } rssi ? $"{wifi.Signal} % ({rssi} dBm)" : $"{wifi.Signal} %");
-            if (wifi.RxMbps is > 0) g.Add("Receive rate", $"{wifi.RxMbps} Mbps");
-            if (wifi.TxMbps is > 0) g.Add("Transmit rate", $"{wifi.TxMbps} Mbps");
+            if (wifi.RxMbps is > 0) g.Add("Receive rate", $"{wifi.RxMbps} {Fmt.Unit("Mbps")}");
+            if (wifi.TxMbps is > 0) g.Add("Transmit rate", $"{wifi.TxMbps} {Fmt.Unit("Mbps")}");
             g.Add("Authentication", wifi.Auth);
             g.Add("Encryption", wifi.Cipher);
         }

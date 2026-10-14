@@ -144,5 +144,5 @@ public sealed class OsProvider : IInfoProvider
         >= 379893 => "4.5.2",
         >= 378675 => "4.5.1",
         _ => "4.5"
-    } + (release is { } r ? $" (release {r})" : "");
+    } + (release is { } r ? " " + Fmt.T("(release {0})", r) : "");
 }

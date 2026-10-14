@@ -96,7 +96,7 @@ public sealed class AudioProvider : IInfoProvider
         var extensible = BitConverter.ToUInt16(blob, 8) == 0xFFFE && blob.Length >= 28;
         var bits = BitConverter.ToUInt16(blob, extensible ? 26 : 22);
         if (rate == 0 || channels == 0) return null;
-        return $"{rate / 1000.0:0.#} kHz, {bits}-bit, {channels} ch";
+        return Fmt.T("{0} kHz, {1}-bit, {2} ch", (rate / 1000.0).ToString("0.#", System.Globalization.CultureInfo.CurrentCulture), bits, channels);
     }
 
     private static string? DefaultEndpoint(int dataFlow)

@@ -25,9 +25,7 @@ public sealed class StorageProvider : IInfoProvider
     {
         var b = new PageBuilder(Id, Title);
         var disks = Disks();
-        var reliability = new Dictionary<string, WmiRow>();
-        foreach (var r in Wmi.Query("SELECT * FROM MSFT_StorageReliabilityCounter", Hw.StorageNs))
-            if (r.Str("DeviceId") is { } id) reliability.TryAdd(id, r);
+        var reliability = ReliabilityCounters();
         var diskInfo = new Dictionary<string, WmiRow>();
         foreach (var r in Wmi.Query("SELECT Number, PartitionStyle, IsBoot, IsSystem, NumberOfPartitions FROM MSFT_Disk", Hw.StorageNs))
             if (r.Str("Number") is { } n) diskInfo.TryAdd(n, r);
@@ -47,9 +45,9 @@ public sealed class StorageProvider : IInfoProvider
                 g.Add("Serial number", r.Str("SerialNumber")?.TrimEnd('.'));
                 g.Word("Health", r.Int("HealthStatus") switch { 0 => "Healthy", 1 => "Warning", 2 => "Unhealthy", _ => null });
                 g.Word("Status", Operational(r.Array<ushort>("OperationalStatus")));
-                if (r.Long("SpindleSpeed") is > 0 and < uint.MaxValue and var rpm) g.Add("Spindle speed", $"{rpm} RPM");
-                g.Add("Logical sector size", r.Long("LogicalSectorSize") is > 0 and var ls ? $"{ls} B" : null);
-                g.Add("Physical sector size", r.Long("PhysicalSectorSize") is > 0 and var ps ? $"{ps} B" : null);
+                if (r.Long("SpindleSpeed") is > 0 and < uint.MaxValue and var rpm) g.Add("Spindle speed", $"{rpm} {Fmt.Unit("RPM")}");
+                g.Add("Logical sector size", r.Long("LogicalSectorSize") is > 0 and var ls ? $"{ls} {Fmt.Unit("B")}" : null);
+                g.Add("Physical sector size", r.Long("PhysicalSectorSize") is > 0 and var ps ? $"{ps} {Fmt.Unit("B")}" : null);
                 if (diskInfo.TryGetValue(d.DeviceId, out var di))
                 {
                     g.Word("Partition style", di.Int("PartitionStyle") switch { 1 => "MBR", 2 => "GPT", 3 => "RAW", _ => null });
@@ -117,12 +115,38 @@ public sealed class StorageProvider : IInfoProvider
         return b.Build();
     }
 
+    // The counters are only reachable through their disk; a plain SELECT on the class returns nothing.
+    private static Dictionary<string, WmiRow> ReliabilityCounters()
+    {
+        var result = new Dictionary<string, WmiRow>();
+        try
+        {
+            using var searcher = new System.Management.ManagementObjectSearcher(Hw.StorageNs, "SELECT * FROM MSFT_PhysicalDisk");
+            foreach (System.Management.ManagementObject disk in searcher.Get())
+            {
+                try
+                {
+                    var id = Convert.ToString(disk["DeviceId"], System.Globalization.CultureInfo.InvariantCulture);
+                    if (id == null) continue;
+                    foreach (var related in disk.GetRelated("MSFT_StorageReliabilityCounter"))
+                    {
+                        result.TryAdd(id, new WmiRow(related));
+                        break;
+                    }
+                }
+                catch (Exception) { /* not available for this disk (USB bridges, no admin rights) */ }
+            }
+        }
+        catch (Exception) { }
+        return result;
+    }
+
     private static void AddReliability(PropertyBuilder g, WmiRow r)
     {
         if (r.Long("Temperature") is > 0 and var temp) g.Add("Temperature", $"{temp} °C");
         if (r.Long("TemperatureMax") is > 0 and var tmax) g.Add("Max temperature", $"{tmax} °C");
         // Wear is the percentage of rated endurance used; 100 - wear is what tools usually call "life remaining".
-        if (r.Long("Wear") is { } wear) g.Add("Wear", $"{Fmt.Percent(wear)} (life remaining {Fmt.Percent(Math.Max(0, 100 - wear))})");
+        if (r.Long("Wear") is { } wear) g.Add("Wear", Fmt.T("{0} (life remaining {1})", Fmt.Percent(wear), Fmt.Percent(Math.Max(0, 100 - wear))));
         if (r.Long("PowerOnHours") is > 0 and var hours) g.Add("Power-on hours", Fmt.Number(hours));
         if (r.Long("StartStopCycleCount") is > 0 and var ss) g.Add("Start-stop cycles", Fmt.Number(ss));
         if (r.Long("LoadUnloadCycleCount") is > 0 and var lu) g.Add("Load-unload cycles", Fmt.Number(lu));

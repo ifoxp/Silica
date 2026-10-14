@@ -44,6 +44,12 @@ public static partial class StringDump
                         break;
                     case TableBlock tb:
                         foreach (var c in tb.Columns) Add(c);
+                        for (var i = 0; i < tb.Columns.Length; i++)
+                        {
+                            if (!Localization.ValueVocabulary.IsStatusColumn(tb.Columns[i])) continue;
+                            foreach (var row in tb.Rows)
+                                if (i < row.Length && Localization.ValueVocabulary.LooksTranslatable(row[i])) Add(row[i]);
+                        }
                         break;
                 }
             }
