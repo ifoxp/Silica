@@ -1,91 +1,142 @@
+**English** · [Українська](README.uk.md)
+
 <p align="center">
   <img src="docs/logo.png" width="96" alt="">
 </p>
 
-<h1 align="center">Silica</h1>
+# Silica
 
-<p align="center">
-  System information, live sensors, benchmarks and a stability test for Windows.<br>
-  Free, open source, no accounts, no subscriptions, no telemetry.
-</p>
+System information, live sensors, benchmarks and a stability test for Windows —
+free, open source, no accounts, no subscriptions, no telemetry.
 
-<p align="center">
-  <a href="#українською">Українською</a>
-</p>
+Built in C# on .NET 9 and WPF. Sensor access goes through LibreHardwareMonitor
+and the PawnIO driver; everything else — the information pages, benchmarks,
+stability test, reports and search — is written from scratch.
 
 ![Overview](docs/screenshots/overview.png)
 
+## Download
+
+Take the latest build from [Releases](https://github.com/ifoxp/Silica/releases/latest):
+
+| File | What it is |
+|---|---|
+| `Silica-<version>-uk.msi` / `-en.msi` | Installer, Ukrainian or English setup wizard. Installs to Program Files and adds a Start menu entry. |
+| `Silica-<version>-portable.zip` | Unzip anywhere and run `Silica.exe`. Nothing is installed. |
+
+Windows 10 or 11, 64-bit. The program is self-contained, so .NET does not need to
+be installed. For processor temperatures and motherboard sensors install the free
+[PawnIO](https://pawnio.eu) driver once; Silica tells you when it is missing.
+
+Windows SmartScreen may warn about an unknown publisher, because the files are not
+code-signed. **More info → Run anyway** starts it.
+
 ## What it does
 
-- **Every detail of the machine.** 28 pages: processor with CPUID and instruction sets, motherboard and BIOS, memory modules, graphics, monitors with EDID, drives with health and wear, network adapters, audio, input and USB devices, power and battery, operating system, processes, services, startup entries, scheduled tasks, installed programs and Store apps, drivers, updates, security (Defender, firewall, TPM, BitLocker, VBS), users, environment, shares, fonts and the event log.
-- **Live sensors.** Temperatures, clocks, voltages, power, fans, loads and throughput with minimum, maximum and average, sparklines and charts you build by clicking sensors.
-- **Overview.** The important numbers on one screen: processor, graphics, memory, drives, network, temperatures and fans.
-- **Benchmarks.** Memory read, write, copy and latency, integer, compression, AES and SHA-256, FP32 and FP64 math. Results are kept, compared with your previous runs, and can be exported to compare with another computer.
-- **Disk benchmark.** Sequential and random speed with the Windows cache bypassed, with IOPS and latency.
-- **Stability test.** Processor, floating point, cache, memory and disk loads where every result is verified, so an unstable overclock shows up as errors. Watches for clock throttling while it runs.
-- **Monitor test.** Full-screen patterns for dead pixels, uniformity, gradients, sharpness and motion.
-- **Reports.** A clean web page that prints well, plain text, Markdown or JSON.
-- **Search that forgives.** Finds pages, settings, sensors and any value in any installed language at once, with typos, partial words, transliteration ("videokarta") and a wrong keyboard layout ("ghjwtcjh" finds "процесор").
-- **Tray, overlay, logging and alerts.** Sensor values in the notification area, a small always-on-top panel, CSV logging and notifications when a value crosses a limit.
-
-Silica only does work you ask for. Pages are read when you open them, and sensors are polled only while something shows or records them: a minimized window uses no processor time unless the tray, overlay, logging or alerts need live values.
-
-Memory is kept low the same way. Sensors run in a second `Silica.exe` process that closes a minute after nothing needs them, which returns the memory the sensor library and driver hold. On screens up to 2560×1600 the interface is drawn by the processor, about 50 MB less than drawing on the graphics card; **Settings → Appearance → Drawing** changes it. A hidden or minimized window gives its memory back to Windows.
+- **Every detail of the machine.** 28 pages: processor with CPUID and instruction
+  sets, motherboard and BIOS, memory modules with SPD timings, graphics, monitors with
+  EDID, drives with health and wear, network, audio, input and USB devices, power and
+  battery, the operating system, processes, services, startup entries, scheduled
+  tasks, installed programs, drivers, updates, security (Defender, firewall, TPM,
+  BitLocker, VBS), users, environment, shares, fonts and the event log
+- **Live sensors** — temperatures, clocks, voltages, power, fans and loads with
+  minimum, maximum and average, sparklines and charts built by clicking sensors
+- **Benchmarks** — memory read, write, copy and latency, integer, compression, AES,
+  SHA-256, FP32 and FP64, kept in a history and comparable with another computer
+- **Disk benchmark** — sequential and random speed with the Windows cache bypassed
+- **Stability test** — processor, floating point, cache, memory and disk loads where
+  every result is verified, so an unstable overclock shows up as errors, not as a
+  crash an hour later
+- **Monitor test**, **reports** (HTML, text, Markdown, JSON), a **tray icon**, an
+  always-on-top **overlay**, **CSV logging** and **alerts** when a value crosses a limit
 
 | | |
 |---|---|
 | ![Sensors](docs/screenshots/sensors.png) | ![Processor](docs/screenshots/processor.png) |
 | ![Benchmarks](docs/screenshots/benchmarks.png) | ![Search](docs/screenshots/search.png) |
 
-## Requirements
+## Why it stays light
 
-- Windows 10 or 11, 64-bit.
-- Administrator rights. Silica asks for them at start because temperatures, fan speeds and drive health are not readable otherwise. If you decline, it runs in a limited mode and offers to restart with rights later.
-- [PawnIO](https://pawnio.eu) for processor temperatures and motherboard sensors. Silica tells you when it is missing.
+A monitoring tool that eats a quarter of a gigabyte to show you how much memory
+is free is a bad joke. Three decisions keep Silica small:
 
-## Download and run
+**Sensors run in a separate process.** The sensor library and its kernel driver
+hold native memory that a .NET process cannot give back once it has loaded them.
+So sensors live in a second `Silica.exe` that the window talks to over a named
+pipe. When nothing needs live values for a minute — no sensor page open, no tray
+value, no overlay, logging or alert — that process exits and its memory goes with it.
 
-- **Installer:** `Silica-<version>-uk.msi` or `Silica-<version>-en.msi`. Installs to Program Files and adds a Start menu entry.
-- **Portable:** unzip `Silica-<version>-portable.zip` and run `Silica.exe`. To keep settings next to the program instead of `%AppData%\Silica`, create an empty `Silica.settings.json` beside it.
+**The interface is drawn by the processor on ordinary screens.** WPF's GPU path
+keeps a Direct3D device and its buffers alive for the window's lifetime, about
+50 MB. Up to 2560×1600 software rendering is just as smooth, so that is the default;
+on 4K screens the graphics card takes over. **Settings → Appearance → Drawing**
+overrides either way.
 
-**Start with Windows** is available only in the installed version. The startup task runs Silica with administrator rights, so the program file has to sit in Program Files, where other programs cannot replace it.
+**Nothing runs until you look at it.** Information pages are read when opened.
+A minimized window stops its timers and hands its working set back to Windows.
 
-Windows 11 puts new tray icons into the overflow area. To keep a sensor visible, drag its icon from the overflow to the taskbar once.
+| | Before | Now |
+|---|---|---|
+| Overview with live sensors | 233 MB | 152 MB window + 123 MB sensor process |
+| Information page, sensors released | 228 MB | 149 MB, one process |
+| Minimized | — | 7–17 MB |
 
-## Build from source
+*Working set, AMD Ryzen 7 7700 + RTX 5070, Windows 11.*
 
-You need the [.NET 9 SDK](https://dotnet.microsoft.com/download) and Python 3 (only for the release script).
+## Search that forgives
+
+One box finds pages, settings, sensors and any value on any page — in every
+installed language at once. It is built for people who do not know the right word:
+
+- **typos and partial words** — optimal-string-alignment distance, so swapped
+  letters cost one edit, not two
+- **transliteration** — `videokarta` finds "Відеокарта"
+- **wrong keyboard layout** — `ghjwtcjh` typed on an English layout finds "процесор";
+  the layouts are read from the ones installed in Windows
+- **synonyms** — "GPU", "videocard" and "відеокарта" lead to the same page
+
+## Languages
+
+52 languages are built in, and Silica follows the Windows display language on first
+start. English and Ukrainian are written by hand; the others are machine-assisted and
+corrections from native speakers are welcome. Arabic, Hebrew and Persian use a
+right-to-left layout with numbers and units kept in reading order. Any text missing
+from a language falls back to English, so a partial translation is still usable.
+
+For fun there are three Ukrainian variants — Pirate, Viking and Cossack. A variant is
+an ordinary language file with `"base": "uk"`: it borrows Ukrainian number formats and
+any string it leaves out, and is never picked automatically.
+
+A language is one JSON file; no code changes. **Settings → Language → Create
+translation template**, translate the values, drop the file into the languages folder.
+Rules for contributors are in [tools/TRANSLATING.md](tools/TRANSLATING.md).
+
+## Administrator rights
+
+Temperatures, fan speeds and drive health are not readable without them, so Silica
+asks at start. Declining is fine: it runs in a limited mode and offers a restart
+later.
+
+Running elevated has consequences that are handled on purpose. Files, folders and
+links open through your own Explorer, so a browser started from Silica never
+inherits its rights. **Start with Windows** creates a task that starts Silica
+elevated without a prompt, so it is only offered for the installed copy in Program
+Files — a portable `Silica.exe` in Downloads could be replaced by any program.
+
+## Building
 
 ```powershell
 dotnet build Silica.sln                 # debug build
 .\build.ps1 -Version 1.0.0              # portable zip and both installers in .\artifacts
 ```
 
-Command line:
+Needs the .NET 9 SDK; the release script also uses Python 3 and restores WiX as a
+local tool.
 
 ```powershell
-Silica.exe --report report.html         # write a report without opening a window (.html, .txt, .md, .json);
-                                        # run it from an administrator terminal for drive health and TPM data
-Silica.exe --lang en                    # start in a given language
+Silica.exe --report report.html         # write a report without opening a window
+Silica.exe --lang uk-x-pirate           # start in a given language
 ```
-
-## Languages
-
-52 languages are built in: English, Ukrainian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian, Bulgarian, Catalan, Chinese (Simplified and Traditional), Croatian, Czech, Danish, Dutch, Estonian, Finnish, French, Galician, Georgian, German, Greek, Hebrew, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Kazakh, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian, Persian, Polish, Portuguese (Portugal and Brazil), Romanian, Serbian (Latin), Slovak, Slovenian, Spanish, Swedish, Thai, Turkish and Vietnamese. Silica picks the Windows display language on first start. Arabic, Hebrew and Persian use a right-to-left layout. For fun there are three Ukrainian variants: Pirate, Viking and Cossack.
-
-English and Ukrainian are written by hand; the other languages are machine-assisted and welcome corrections from native speakers. Any text missing from a language is shown in English, so a partial translation is still usable.
-
-To add or fix a language (a single JSON file):
-
-1. In Silica, open **Settings → Language → Create translation template**.
-2. Translate the values (the keys are the English texts) and set the language code and name at the top.
-3. Put the file into the languages folder (**Open languages folder**) and press **Reload languages**.
-
-`plural` selects how counts are written (`none`, `one-other`, `zero-one-other`, `east-slavic`, `polish`, `czech`, `lithuanian`, `latvian`, `romanian`, `slovenian`, `arabic`, `hebrew`). Forms are separated by `|`, for example `"{0} датчик|{0} датчики|{0} датчиків"`. The `synonyms` section adds search words. Settings shows how complete each language is.
-
-For contributors: [tools/TRANSLATING.md](tools/TRANSLATING.md) has the rules. `python tools/i18n.py` refreshes `en.json` from the source and lists missing keys per language; `python tools/check_lang.py` checks placeholders and plural forms.
-
-## Project layout
 
 ```
 src/Silica.Core   information pages, sensors, benchmarks, stability test, reports (no UI)
@@ -96,31 +147,17 @@ tools             language tooling, icon generator
 
 ## Privacy
 
-Silica makes no network connections. Reports, logs and benchmark results stay on your computer unless you share them.
+Silica makes no network connections. Reports, logs and benchmark results stay on
+your computer unless you share them.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Sensor access uses [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (MPL 2.0) and the [PawnIO](https://pawnio.eu) driver.
+MIT, see [LICENSE](LICENSE). Sensor access uses
+[LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
+(MPL 2.0) and the [PawnIO](https://pawnio.eu) driver.
 
 ---
 
-## Українською
-
-**Silica** — безкоштовна програма з відкритим кодом для Windows: повні відомості про комп'ютер, живі датчики, тести продуктивності й тест стабільності. Без облікових записів, підписок і телеметрії.
-
-- **28 сторінок відомостей** про залізо й систему: процесор з CPUID, материнська плата й BIOS, модулі пам'яті, відеокарта, монітори, диски зі станом і зносом, мережа, звук, USB, живлення, ОС, процеси, служби, автозапуск, програми, драйвери, оновлення, безпека та інше.
-- **Датчики** з мінімумом, максимумом і середнім, міні-графіками та великими графіками за кліком.
-- **Огляд**: усе головне на одному екрані.
-- **Тести продуктивності** пам'яті, процесора й дробових обчислень з історією та порівнянням з іншим комп'ютером.
-- **Тест диска** в обхід кешу Windows, **тест стабільності** з перевіркою кожного результату, **тест монітора**.
-- **Звіти** у вигляді вебсторінки, тексту, Markdown чи JSON.
-- **Розумний пошук**: розуміє будь-яку встановлену мову, помилки, транслітерацію й неправильну розкладку.
-- **Трей, оверлей, запис у CSV і сповіщення.**
-
-Програма працює лише тоді, коли це потрібно: згорнуте вікно не навантажує процесор, якщо датчики не потрібні трею, оверлею, запису чи сповіщенням. Датчики працюють в окремому процесі `Silica.exe`, який закривається через хвилину після того, як стали не потрібні, і звільняє пам'ять. На екранах до 2560×1600 інтерфейс малює процесор, це приблизно на 50 МБ менше пам'яті (змінюється в «Налаштування → Вигляд → Відтворення інтерфейсу»).
-
-**Вимоги:** Windows 10/11 x64, права адміністратора (без них — обмежений режим), драйвер [PawnIO](https://pawnio.eu) для температур процесора й датчиків материнської плати.
-
-**Автозапуск** доступний лише у встановленій версії: завдання запускає Silica з правами адміністратора, тож файл програми має лежати в Program Files, де його не підмінить інша програма.
-
-**Мови:** вбудовано 52 мови, зокрема українську та англійську (написані вручну; решта перекладена з допомогою машинного перекладу, виправлення від носіїв мови вітаються). Якщо в мові бракує якогось тексту, він показується англійською. Для настрою є три варіанти української: піратська, вікінгська й козацька. Нова мова — один файл JSON: «Налаштування → Мова → Створити шаблон перекладу», перекладіть значення й покладіть файл у папку мов.
+**Chekaliuk Dmytro** · [@ifoxp](https://github.com/ifoxp) ·
+[ifoxp.top](https://ifoxp.top) · Telegram [@ifoxp](https://t.me/ifoxp) ·
+Discord `ifoxp`
