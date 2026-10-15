@@ -3,4 +3,16 @@
   <String Id="Downgrade" Value="Уже встановлено новішу версію Silica." />
   <String Id="ShortcutDescription" Value="Відомості про систему, датчики й тести продуктивності" />
   <String Id="LaunchApp" Value="Запустити Silica" />
+  <String Id="WelcomeInstall" Value="Майстер установить Silica на цей комп'ютер. Натисніть «Далі», щоб продовжити, або «Скасувати», щоб вийти." />
+  <String Id="WelcomeUpdate" Value="Silica вже встановлено на цьому комп'ютері. Майстер оновить її до версії [ProductVersion] у тій самій папці, а налаштування й результати тестів збережуться. Натисніть «Далі», щоб продовжити." />
+  <String Id="WelcomeDlgDescription" Value="[SilicaWelcome]" Overridable="yes" />
+  <String Id="ReadyInstallTitle" Value="Усе готово до встановлення Silica" />
+  <String Id="ReadyInstallText" Value="Натисніть «Встановити», щоб почати. Щоб переглянути чи змінити параметри, натисніть «Назад»." />
+  <String Id="ReadyInstallButton" Value="&amp;Встановити" />
+  <String Id="ReadyUpdateTitle" Value="Усе готово до оновлення Silica" />
+  <String Id="ReadyUpdateText" Value="Натисніть «Оновити», щоб замінити встановлену версію на [ProductVersion]. Налаштування й результати тестів збережуться." />
+  <String Id="ReadyUpdateButton" Value="&amp;Оновити" />
+  <String Id="VerifyReadyDlgInstallTitle" Value="{\WixUI_Font_Title}[SilicaReadyTitle]" Overridable="yes" />
+  <String Id="VerifyReadyDlgInstallText" Value="[SilicaReadyText]" Overridable="yes" />
+  <String Id="VerifyReadyDlgInstall" Value="[SilicaReadyButton]" Overridable="yes" />
 </WixLocalization>

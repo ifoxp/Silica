@@ -58,7 +58,8 @@ public static class SearchService
         ("Alerts", "alerts", "notification warning threshold overheat"),
         ("Start with Windows", "startup", "autostart boot launch"),
         ("Search", "search", "index"),
-        ("About", "about", "version license")
+        ("About", "about", "version license"),
+        ("Remove Silica", "remove", "uninstall delete erase uninstaller")
     ];
 
     public static void Initialize()

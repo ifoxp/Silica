@@ -998,6 +998,14 @@ UK = {
     "Paths and start times of some system processes are only visible when running as administrator.": "Шляхи й час запуску деяких системних процесів видно лише під час роботи від імені адміністратора.",
     "Tasks created by other users are only visible when running as administrator.": "Завдання, створені іншими користувачами, видно лише під час роботи від імені адміністратора.",
     "TPM details (state, manufacturer) require administrator rights.": "Відомості про TPM (стан, виробник) потребують прав адміністратора.",
+    "Remove Silica": "Видалити Silica",
+    "Remove Silica?": "Видалити Silica?",
+    "Deletes the program together with its settings, logs, benchmark history and startup task, so nothing is left behind.": "Видаляє програму разом із налаштуваннями, журналами, історією тестів і завданням автозапуску, тож після неї нічого не лишається.",
+    "Also delete saved reports and sensor logs in {0}": "Також видалити збережені звіти й записи датчиків у {0}",
+    "The PawnIO driver stays installed because other monitoring programs use it too. You can remove it in Windows Settings, Apps.": "Драйвер PawnIO лишиться, бо ним користуються й інші програми моніторингу. Його можна видалити в «Параметрах Windows», розділ «Програми».",
+    "Silica will close and Windows will uninstall it. Its settings, logs, benchmark history and startup task are deleted as well.": "Silica закриється, і Windows її видалить. Налаштування, журнали, історія тестів і завдання автозапуску теж будуть видалені.",
+    "Silica will close and delete its program file, settings, logs, benchmark history and startup task.": "Silica закриється й видалить свій файл програми, налаштування, журнали, історію тестів і завдання автозапуску.",
+    "Silica could not start the removal.": "Silica не вдалося розпочати видалення.",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:
@@ -1041,4 +1049,5 @@ SYNONYMS = {
     "Sensor logging": ["запис датчиків", "лог", "csv"],
     "Alerts": ["сповіщення", "перегрів", "попередження", "уведомления"],
     "Start with Windows": ["автозапуск", "автозагрузка"],
+    "Remove Silica": ["видалити", "деінсталювати", "деінсталяція", "видалення програми", "удалить", "деинсталляция"],
 }

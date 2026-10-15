@@ -3,4 +3,16 @@
   <String Id="Downgrade" Value="A newer version of Silica is already installed." />
   <String Id="ShortcutDescription" Value="System information, sensors and benchmarks" />
   <String Id="LaunchApp" Value="Start Silica" />
+  <String Id="WelcomeInstall" Value="The Setup Wizard will install Silica on your computer. Click Next to continue or Cancel to exit." />
+  <String Id="WelcomeUpdate" Value="Silica is already installed on this computer. The wizard will update it to version [ProductVersion] in the same folder, keeping your settings and benchmark results. Click Next to continue." />
+  <String Id="WelcomeDlgDescription" Value="[SilicaWelcome]" Overridable="yes" />
+  <String Id="ReadyInstallTitle" Value="Ready to install Silica" />
+  <String Id="ReadyInstallText" Value="Click Install to begin. Click Back to review or change the settings." />
+  <String Id="ReadyInstallButton" Value="&amp;Install" />
+  <String Id="ReadyUpdateTitle" Value="Ready to update Silica" />
+  <String Id="ReadyUpdateText" Value="Click Update to replace the installed version with [ProductVersion]. Your settings and benchmark results are kept." />
+  <String Id="ReadyUpdateButton" Value="&amp;Update" />
+  <String Id="VerifyReadyDlgInstallTitle" Value="{\WixUI_Font_Title}[SilicaReadyTitle]" Overridable="yes" />
+  <String Id="VerifyReadyDlgInstallText" Value="[SilicaReadyText]" Overridable="yes" />
+  <String Id="VerifyReadyDlgInstall" Value="[SilicaReadyButton]" Overridable="yes" />
 </WixLocalization>

@@ -320,6 +320,21 @@ public sealed class SettingsView : UserControl, INavigable
         about.Children.Add(aboutButtons);
         body.Children.Add(Section("about", "About", "", about));
 
+        var removeButton = new Button
+        {
+            Content = T("Remove Silica"), Style = R<Style>("Button.Danger"), HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(0, 12, 0, 4), Padding = new Thickness(16, 7, 16, 7)
+        };
+        removeButton.Click += (_, _) => ConfirmRemove();
+        var removePanel = new StackPanel();
+        removePanel.Children.Add(new TextBlock
+        {
+            Style = R<Style>("Text.Secondary"), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None,
+            Text = T("Deletes the program together with its settings, logs, benchmark history and startup task, so nothing is left behind.")
+        });
+        removePanel.Children.Add(removeButton);
+        body.Children.Add(Section("remove", "Remove Silica", "", removePanel));
+
         _scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body, Focusable = false };
         var root = new Grid();
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -461,6 +476,52 @@ public sealed class SettingsView : UserControl, INavigable
             Loc.Instance.Use(code);
         };
         return row;
+    }
+
+    private void ConfirmRemove()
+    {
+        var installed = Uninstaller.InstalledProductCode() != null;
+        var extra = new StackPanel();
+        CheckBox? documents = null;
+        if (Directory.Exists(Uninstaller.DocumentsFolder))
+        {
+            documents = new CheckBox
+            {
+                IsChecked = true, Margin = new Thickness(0, 0, 0, 10),
+                Content = new TextBlock
+                {
+                    Style = R<Style>("Text.Base"), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None,
+                    Text = Loc.Instance.F("Also delete saved reports and sensor logs in {0}", Uninstaller.DocumentsFolder)
+                }
+            };
+            extra.Children.Add(documents);
+        }
+        if (SensorHub.DriverInstalled)
+        {
+            extra.Children.Add(new TextBlock
+            {
+                Style = R<Style>("Text.Caption"), TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None,
+                Text = T("The PawnIO driver stays installed because other monitoring programs use it too. You can remove it in Windows Settings, Apps.")
+            });
+        }
+
+        var text = T(installed
+            ? "Silica will close and Windows will uninstall it. Its settings, logs, benchmark history and startup task are deleted as well."
+            : "Silica will close and delete its program file, settings, logs, benchmark history and startup task.");
+        if (!ErrorDialog.Confirm(Window.GetWindow(this), T("Remove Silica?"), text, T("Remove Silica"), "",
+                extra.Children.Count > 0 ? extra : null, destructive: true))
+            return;
+
+        try
+        {
+            Uninstaller.Run(documents?.IsChecked == true);
+            (Application.Current.MainWindow as MainWindow)?.ExitApplication();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Uninstall", ex);
+            ErrorDialog.Show(Window.GetWindow(this), ex, T("Silica could not start the removal."));
+        }
     }
 
     private readonly List<(WrapPanel Host, List<string> Ids)> _sensorLists = [];

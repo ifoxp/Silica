@@ -1,5 +1,6 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Package Name="Silica"
            Manufacturer="Silica"
            Version="$(Version)"
@@ -9,28 +10,48 @@
            Language="!(loc.Language)">
 
     <SummaryInformation Description="Silica" />
-    <MajorUpgrade DowngradeErrorMessage="!(loc.Downgrade)" />
+    <!-- The Ukrainian and English packages of one version replace each other instead of installing side by side. -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" IgnoreLanguage="yes" DowngradeErrorMessage="!(loc.Downgrade)" />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
-    <Icon Id="SilicaIcon" SourceFile="..\src\Silica\Assets\Silica.ico" />
-    <Property Id="ARPPRODUCTICON" Value="SilicaIcon" />
+    <!-- Windows only treats an icon file as one when its name has an extension. -->
+    <Icon Id="Silica.ico" SourceFile="..\src\Silica\Assets\Silica.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Silica.ico" />
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" After="CostFinalize" />
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Silica" />
     </StandardDirectory>
 
+    <!-- An update goes into the folder the previous version was installed to. -->
+    <Property Id="INSTALLFOLDER">
+      <RegistrySearch Root="HKLM" Key="Software\Silica" Name="InstallDir" Type="raw" Bitness="always64" />
+    </Property>
+
     <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
       <Component Bitness="always64">
-        <File Id="SilicaExe" Source="$(PublishDir)\Silica.exe" KeyPath="yes">
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Silica" Description="!(loc.ShortcutDescription)"
-                    WorkingDirectory="INSTALLFOLDER" Icon="SilicaIcon" Advertise="yes" />
-        </File>
+        <File Id="SilicaExe" Source="$(PublishDir)\Silica.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Shortcuts" Bitness="always64">
+        <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Silica" Description="!(loc.ShortcutDescription)"
+                  Target="[#SilicaExe]" WorkingDirectory="INSTALLFOLDER" />
+        <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="Silica" Description="!(loc.ShortcutDescription)"
+                  Target="[#SilicaExe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKLM" Key="Software\Silica" Name="InstallDir" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+        <!-- Removing Silica also removes its settings and any language files added next to it; an update keeps them. -->
+        <util:RemoveFolderEx On="uninstall" Property="SILICA_DATA" />
+        <util:RemoveFolderEx On="uninstall" Property="SILICA_FOLDER" />
       </Component>
     </ComponentGroup>
 
     <Feature Id="Main" Title="Silica" AllowAbsent="no">
       <ComponentGroupRef Id="AppFiles" />
     </Feature>
+
+    <SetProperty Id="SILICA_DATA" Value="[AppDataFolder]Silica" Before="Wix4RemoveFoldersEx_X64" Sequence="execute"
+                 Condition="REMOVE~=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+    <SetProperty Id="SILICA_FOLDER" Value="[INSTALLFOLDER]Languages" Before="Wix4RemoveFoldersEx_X64" Sequence="execute"
+                 Condition="REMOVE~=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE AND INSTALLFOLDER" />
 
     <!-- "Start with Windows" creates a scheduled task; remove it together with the program. -->
     <SetProperty Id="RemoveStartupTask" Value="&quot;[System64Folder]schtasks.exe&quot; /Delete /TN Silica /F"
@@ -46,6 +67,16 @@
     <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 
+    <!-- The wizard says whether this is a new installation or an update of the one already there. -->
+    <Property Id="SilicaWelcome" Value="!(loc.WelcomeInstall)" />
+    <Property Id="SilicaReadyTitle" Value="!(loc.ReadyInstallTitle)" />
+    <Property Id="SilicaReadyText" Value="!(loc.ReadyInstallText)" />
+    <Property Id="SilicaReadyButton" Value="!(loc.ReadyInstallButton)" />
+    <SetProperty Id="SilicaWelcome" Value="!(loc.WelcomeUpdate)" After="AppSearch" Sequence="ui" Condition="WIX_UPGRADE_DETECTED" />
+    <SetProperty Id="SilicaReadyTitle" Value="!(loc.ReadyUpdateTitle)" After="AppSearch" Sequence="ui" Condition="WIX_UPGRADE_DETECTED" />
+    <SetProperty Id="SilicaReadyText" Value="!(loc.ReadyUpdateText)" After="AppSearch" Sequence="ui" Condition="WIX_UPGRADE_DETECTED" />
+    <SetProperty Id="SilicaReadyButton" Value="!(loc.ReadyUpdateButton)" After="AppSearch" Sequence="ui" Condition="WIX_UPGRADE_DETECTED" />
+
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.LaunchApp)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
     <Property Id="WixShellExecTarget" Value="[#SilicaExe]" />
@@ -53,6 +84,17 @@
     <UI>
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication"
                Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+
+      <!-- A chosen folder gets its own Silica subfolder, as people expect from an installer.
+           The browse dialog edits INSTALLFOLDER itself; WIXUI_INSTALLDIR only holds that property's name. -->
+      <Publish Dialog="BrowseDlg" Control="OK" Property="INSTALLFOLDER" Value="[INSTALLFOLDER]Silica\" Order="1"
+               Condition="NOT (INSTALLFOLDER ~&gt;&gt; &quot;\Silica\&quot;)" />
+
+      <!-- An update skips the licence and folder pages and keeps the existing location. -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="3"
+               Condition="NOT Installed AND WIX_UPGRADE_DETECTED" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="3"
+               Condition="NOT Installed AND WIX_UPGRADE_DETECTED" />
     </UI>
   </Package>
 </Wix>

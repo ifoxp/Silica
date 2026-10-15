@@ -31,6 +31,11 @@ be installed. For processor temperatures and motherboard sensors install the fre
 Windows SmartScreen may warn about an unknown publisher, because the files are not
 code-signed. **More info → Run anyway** starts it.
 
+A newer installer recognises the installed copy and updates it in place, keeping your
+settings and benchmark results. **Settings → Remove Silica** uninstalls it completely —
+program, settings, logs, benchmark history and the startup task — and removing it from
+Windows Settings cleans up the same way.
+
 ## What it does
 
 - **Every detail of the machine.** 28 pages: processor with CPUID and instruction

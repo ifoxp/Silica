@@ -38,7 +38,7 @@ IGNORE = {
     "Missing \"language\" section", "Missing language code", "NumberOfCores", "ProcessorNameString", "ProductName",
     "References", "ReportFormat", "Screenshot failed", "Sensor log not started", "Sensor log write failed",
     "Sensor logs", "Silica", "Silica bench ", "Silica overlay", "Silica-bench.tmp", "SMBIOSMemoryType", "Stable text",
-    "Stable text: details", "Startup task", "Start with Windows is only available for a copy in Program Files.", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
+    "Stable text: details", "Startup task", "Start with Windows is only available for a copy in Program Files.", "$ErrorActionPreference = 'SilentlyContinue'", "InstallLocation", "Start-Sleep -Seconds 1", "Uninstall", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
     "Windows 10", "Windows 11", "yyyy-MM-dd HH:mm:ss", "Report failed", "Report not saved", "Disk benchmark failed",
     "Stability test failed to start", "Languages", "Native name of the language", "English name of the language",
     "Task Scheduler is not available", "AES-NI", "no AES-NI", "AVX", "AVX-512", "AVX2+FMA", "FP32", "FP64", "FPU", "SSE",

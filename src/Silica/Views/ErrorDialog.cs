@@ -20,13 +20,15 @@ public static class ErrorDialog
         Build(owner, title, text, icon, details, [(Loc.Instance.T("Close"), true)]).ShowDialog();
 
     /// <summary>Returns true when the user picks the primary action.</summary>
-    public static bool Confirm(Window? owner, string title, string text, string primary, string icon = "")
+    public static bool Confirm(Window? owner, string title, string text, string primary, string icon = "",
+        FrameworkElement? extra = null, bool destructive = false)
     {
-        var dlg = Build(owner, title, text, icon, null, [(Loc.Instance.T("Cancel"), false), (primary, true)]);
+        var dlg = Build(owner, title, text, icon, null, [(Loc.Instance.T("Cancel"), false), (primary, true)], extra, destructive);
         return dlg.ShowDialog() == true;
     }
 
-    private static Window Build(Window? owner, string title, string text, string icon, string? details, (string Text, bool Result)[] buttons)
+    private static Window Build(Window? owner, string title, string text, string icon, string? details, (string Text, bool Result)[] buttons,
+        FrameworkElement? extra = null, bool destructive = false)
     {
         var win = new Window
         {
@@ -62,6 +64,12 @@ public static class ErrorDialog
             });
         }
 
+        if (extra != null)
+        {
+            extra.Margin = new Thickness(0, 14, 0, 0);
+            root.Children.Add(extra);
+        }
+
         var bar = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
         for (var i = 0; i < buttons.Length; i++)
         {
@@ -72,9 +80,10 @@ public static class ErrorDialog
                 Content = caption,
                 MinWidth = 96,
                 Margin = new Thickness(8, 0, 0, 0),
-                IsDefault = primary,
+                // Enter must not start something that cannot be undone.
+                IsDefault = primary && !destructive,
                 IsCancel = !primary || buttons.Length == 1,
-                Style = primary ? (Style)win.FindResource("Button.Accent") : (Style)win.FindResource(typeof(Button))
+                Style = primary ? (Style)win.FindResource(destructive ? "Button.Danger" : "Button.Accent") : (Style)win.FindResource(typeof(Button))
             };
             b.Click += (_, _) => { win.DialogResult = result; };
             bar.Children.Add(b);
