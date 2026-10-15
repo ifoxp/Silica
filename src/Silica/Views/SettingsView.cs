@@ -76,7 +76,7 @@ public sealed class SettingsView : UserControl, INavigable
         header.ColumnDefinitions.Add(new ColumnDefinition());
         header.Children.Add(new Border
         {
-            Width = 40, Height = 40, CornerRadius = new CornerRadius(10), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
+            Width = 40, Height = 40, CornerRadius = new CornerRadius(8), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
             Child = new TextBlock { Style = R<Style>("Icon"), Text = "", FontSize = 18, Foreground = R<Brush>("Brush.AccentText") }
         });
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
@@ -97,22 +97,31 @@ public sealed class SettingsView : UserControl, INavigable
             Settings.Touch();
             ThemeService.Apply();
         });
-        var swatches = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (var hex in ThemeService.AccentPresets)
+        var swatches = new WrapPanel();
+        foreach (var value in ThemeService.AccentPresets.Prepend(ThemeService.SystemAccent))
         {
-            var color = (Color)ColorConverter.ConvertFromString(hex);
-            var selected = string.Equals(s.Accent, hex, StringComparison.OrdinalIgnoreCase);
-            var dot = new Grid { Width = 30, Height = 30, Margin = new Thickness(0, 0, 8, 0), Cursor = System.Windows.Input.Cursors.Hand, Background = Brushes.Transparent };
+            var system = value == ThemeService.SystemAccent;
+            var color = system ? ThemeService.WindowsAccent() : (Color)ColorConverter.ConvertFromString(value);
+            var selected = string.Equals(s.Accent, value, StringComparison.OrdinalIgnoreCase);
+            var dot = new Grid { Width = 30, Height = 30 };
             dot.Children.Add(new Ellipse { Fill = new SolidColorBrush(color), Width = 24, Height = 24 });
+            // The Windows colour carries a small mark so it reads as following the system rather than as one more preset.
+            if (system) dot.Children.Add(new TextBlock { Style = R<Style>("Icon"), Text = "\uE770", FontSize = 11, Foreground = Brushes.White });
             if (selected) dot.Children.Add(new Ellipse { Stroke = R<Brush>("Brush.Text"), StrokeThickness = 2, Width = 30, Height = 30 });
-            var value = hex;
-            dot.MouseLeftButtonUp += (_, _) =>
+            var swatch = new RadioButton
+            {
+                Style = R<Style>("Button.Ghost"), Content = dot, GroupName = "accent", IsChecked = selected,
+                Padding = new Thickness(2), MinHeight = 0, Margin = new Thickness(0, 0, system ? 14 : 4, 0),
+                ToolTip = system ? T("Same as Windows") : null
+            };
+            System.Windows.Automation.AutomationProperties.SetName(swatch, system ? T("Same as Windows") : value);
+            swatch.Checked += (_, _) =>
             {
                 s.Accent = value;
                 Settings.Touch();
                 ThemeService.Apply();
             };
-            swatches.Children.Add(dot);
+            swatches.Children.Add(swatch);
         }
         var rendering = Segmented([(T("Automatic"), RenderingMode.Automatic), (T("Graphics"), RenderingMode.Hardware), (T("Processor"), RenderingMode.Software)],
             s.Rendering, v =>
@@ -121,10 +130,19 @@ public sealed class SettingsView : UserControl, INavigable
                 Settings.Touch();
                 Performance.ApplyRenderingToAll();
             });
-        body.Children.Add(Section("appearance", "Appearance", "",
+        var appearance = new List<FrameworkElement>
+        {
             Row("Theme", "System follows the Windows setting", themeSeg),
-            Row("Accent color", null, swatches),
-            Row("Drawing", "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens", rendering)));
+            Row("Accent color", null, swatches)
+        };
+        if (ThemeService.MicaSupported)
+            appearance.Add(Switch("Translucent window background", "The desktop colour shows through the title bar and sidebar, as in Windows 11 apps", s.Mica, v =>
+            {
+                s.Mica = v;
+                ThemeService.Apply();
+            }));
+        appearance.Add(Row("Drawing", "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens", rendering));
+        body.Children.Add(Section("appearance", "Appearance", "", [.. appearance]));
 
         var langs = new StackPanel();
         langs.Children.Add(LanguageRow("auto", T("Automatic"), T("Same as Windows"), null, s.Language is "auto" or ""));
@@ -350,8 +368,8 @@ public sealed class SettingsView : UserControl, INavigable
     {
         var stack = new StackPanel();
         var head = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
-        head.Children.Add(new TextBlock { Style = R<Style>("Icon"), Text = icon, FontSize = 15, Foreground = R<Brush>("Brush.AccentText"), Margin = new Thickness(0, 0, 10, 0) });
-        head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), FontSize = 15, Text = T(title) });
+        head.Children.Add(new TextBlock { Style = R<Style>("Icon"), Text = icon, FontSize = 16, Foreground = R<Brush>("Brush.AccentText"), Margin = new Thickness(0, 0, 10, 0) });
+        head.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), FontSize = 18, Text = T(title) });
         stack.Children.Add(head);
         for (var i = 0; i < rows.Length; i++)
         {

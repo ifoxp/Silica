@@ -51,7 +51,7 @@ public static class ErrorDialog
         var root = new StackPanel { Margin = new Thickness(24, 22, 24, 20) };
         var head = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
         head.Children.Add(new TextBlock { Style = (Style)win.FindResource("Icon"), Text = icon, FontSize = 18, Foreground = ThemeService.BrushOf("Brush.AccentText"), Margin = new Thickness(0, 0, 12, 0) });
-        head.Children.Add(new TextBlock { Style = (Style)win.FindResource("Text.Section"), Text = title, FontSize = 16 });
+        head.Children.Add(new TextBlock { Style = (Style)win.FindResource("Text.Section"), Text = title, FontSize = 20 });
         root.Children.Add(head);
         root.Children.Add(new TextBlock { Style = (Style)win.FindResource("Text.Secondary"), Text = text, TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None });
         if (!string.IsNullOrWhiteSpace(details))

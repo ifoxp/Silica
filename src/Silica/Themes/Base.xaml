@@ -10,27 +10,27 @@
     <FontFamily x:Key="Font.Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
     <FontFamily x:Key="Font.Mono">Cascadia Mono, Consolas</FontFamily>
 
-    <sys:Double x:Key="Size.Body">13</sys:Double>
-    <CornerRadius x:Key="Radius.Card">10</CornerRadius>
-    <CornerRadius x:Key="Radius.Control">6</CornerRadius>
+    <sys:Double x:Key="Size.Body">14</sys:Double>
+    <CornerRadius x:Key="Radius.Card">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Control">4</CornerRadius>
 
     <!-- Text -->
     <Style x:Key="Text.Base" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Font.UI}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style x:Key="Text.Display" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
     </Style>
     <Style x:Key="Text.Title" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
     </Style>
@@ -42,13 +42,13 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text2}" />
     </Style>
     <Style x:Key="Text.Caption" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
-        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text2}" />
     </Style>
     <Style x:Key="Text.Overline" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
-        <Setter Property="FontSize" Value="10.5" />
+        <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource Brush.Text3}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text2}" />
     </Style>
     <!-- Numbers with units keep their left-to-right order in right-to-left languages. -->
     <Style x:Key="Text.Number" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
@@ -63,7 +63,7 @@
     </Style>
     <Style x:Key="Text.Metric" TargetType="TextBlock" BasedOn="{StaticResource Text.Number}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
-        <Setter Property="FontSize" Value="26" />
+        <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
     </Style>
@@ -91,7 +91,7 @@
     </Style>
     <Style x:Key="Panel" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Brush.SurfaceAlt}" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Padding" Value="12,10" />
     </Style>
     <Style x:Key="Divider" TargetType="Border">
@@ -104,7 +104,7 @@
         <Setter Property="Control.Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border Margin="-2" CornerRadius="8" BorderThickness="2" BorderBrush="{DynamicResource Brush.Accent}" SnapsToDevicePixels="True" />
+                    <Border Margin="-2" CornerRadius="6" BorderThickness="2" BorderBrush="{DynamicResource Brush.Accent}" SnapsToDevicePixels="True" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

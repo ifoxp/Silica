@@ -49,7 +49,7 @@ public partial class BenchmarksView : UserControl, INavigable
                     BenchKind.Memory => "Memory",
                     BenchKind.Cpu => "Processor",
                     _ => "Floating point"
-                }).ToUpper(CultureInfo.CurrentUICulture),
+                }),
                 Margin = new Thickness(2, Body.Children.Count == 0 ? 0 : 10, 0, 10)
             });
             var grid = new AutoFitPanel { MinItemWidth = 380, MaxColumns = 2, Margin = new Thickness(0, 0, 0, 16) };
@@ -329,7 +329,7 @@ internal sealed class BenchCard
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
         var names = new StackPanel { Margin = new Thickness(0, 0, 10, 0) };
         names.Children.Add(new TextBlock { Style = (Style)app.FindResource("Text.Base"), FontSize = 12, Text = label });
-        names.Children.Add(new TextBlock { Style = (Style)app.FindResource("Text.Caption"), FontSize = 11, Text = sub });
+        names.Children.Add(new TextBlock { Style = (Style)app.FindResource("Text.Caption"), Text = sub });
         grid.Children.Add(names);
 
         var track = new Border { Height = 8, CornerRadius = new CornerRadius(4), Background = (Brush)app.FindResource("Brush.Track"), VerticalAlignment = VerticalAlignment.Center };

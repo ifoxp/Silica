@@ -1006,6 +1006,12 @@ UK = {
     "Silica will close and Windows will uninstall it. Its settings, logs, benchmark history and startup task are deleted as well.": "Silica закриється, і Windows її видалить. Налаштування, журнали, історія тестів і завдання автозапуску теж будуть видалені.",
     "Silica will close and delete its program file, settings, logs, benchmark history and startup task.": "Silica закриється й видалить свій файл програми, налаштування, журнали, історію тестів і завдання автозапуску.",
     "Silica could not start the removal.": "Silica не вдалося розпочати видалення.",
+    "Rename...": "Перейменувати…",
+    "Rename sensor": "Перейменувати датчик",
+    "Name shown on the overview. Leave it empty to use the original name.": "Назва, яку видно на огляді. Залиште порожнім, щоб повернути початкову.",
+    "Translucent window background": "Напівпрозорий фон вікна",
+    "The desktop colour shows through the title bar and sidebar, as in Windows 11 apps": "Колір робочого столу просвічує крізь заголовок і бічну панель, як у програмах Windows 11",
+    "Change...": "Змінити…",
 }
 
 # Words people type instead of the official names. Russian spellings are included on purpose:

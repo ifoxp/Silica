@@ -43,7 +43,7 @@ public static class AlertToast
             Child = stack,
             Margin = new Thickness(12),
             Padding = new Thickness(16, 14, 16, 14),
-            CornerRadius = new CornerRadius(10),
+            CornerRadius = new CornerRadius(8),
             Background = ThemeService.BrushOf("Brush.Surface"),
             BorderBrush = ThemeService.BrushOf("Brush.StrokeStrong"),
             BorderThickness = new Thickness(1),

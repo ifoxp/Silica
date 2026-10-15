@@ -4,8 +4,8 @@
         xmlns:l="clr-namespace:Silica.Localization"
         xmlns:c="clr-namespace:Silica.Controls"
         Title="Silica" Width="1320" Height="840" MinWidth="900" MinHeight="580"
-        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
-        FontFamily="{StaticResource Font.UI}" FontSize="13"
+        Foreground="{DynamicResource Brush.Text}"
+        FontFamily="{StaticResource Font.UI}" FontSize="14"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
         WindowStartupLocation="CenterScreen" Icon="/Silica;component/Assets/Silica.ico">
     <WindowChrome.WindowChrome>
@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- Title bar -->
-        <Grid Background="{DynamicResource Brush.Sidebar}">
+        <Grid Background="{DynamicResource Brush.Chrome}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -40,13 +40,13 @@
                 <TextBlock Text="&#xE721;" Style="{StaticResource Icon}" FontSize="13" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False" />
                 <Border HorizontalAlignment="Right" Margin="0,0,8,0" Padding="6,1" CornerRadius="4" VerticalAlignment="Center"
                         BorderBrush="{DynamicResource Brush.StrokeStrong}" BorderThickness="1" IsHitTestVisible="False">
-                    <TextBlock Text="Ctrl+K" FontSize="11" Foreground="{DynamicResource Brush.Text3}" />
+                    <TextBlock Text="Ctrl+K" FontSize="12" Foreground="{DynamicResource Brush.Text3}" />
                 </Border>
                 <Popup x:Name="SearchPopup" PlacementTarget="{Binding ElementName=SearchBox}" Placement="Bottom" VerticalOffset="6"
                        AllowsTransparency="True" StaysOpen="True" PopupAnimation="Fade">
                     <Border Width="{Binding ActualWidth, ElementName=SearchBox}" MaxHeight="520" Margin="0,0,12,12"
                             Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.StrokeStrong}"
-                            BorderThickness="1" CornerRadius="10">
+                            BorderThickness="1" CornerRadius="8">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.35" Color="{DynamicResource C.Shadow}" />
                         </Border.Effect>
@@ -71,7 +71,7 @@
                 </Popup>
             </Grid>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+            <StackPanel x:Name="CaptionButtons" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
                 <Button Style="{StaticResource Button.Caption}" Content="&#xE921;" Click="OnMinimize" AutomationProperties.Name="{l:T Minimize}" />
                 <Button x:Name="MaxButton" Style="{StaticResource Button.Caption}" Content="&#xE922;" Click="OnMaximize" AutomationProperties.Name="{l:T Maximize}" />
                 <Button Style="{StaticResource Button.CaptionClose}" Content="&#xE8BB;" Click="OnClose" AutomationProperties.Name="{l:T Close}" />
@@ -85,7 +85,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar -->
-            <Border Background="{DynamicResource Brush.Sidebar}">
+            <Border Background="{DynamicResource Brush.Chrome}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -98,13 +98,15 @@
                 </Grid>
             </Border>
 
-            <!-- Content -->
+            <!-- Content sits on its own layer, rounded where it meets the title bar and sidebar. -->
+            <Border Grid.Column="1" Background="{DynamicResource Brush.Window}" CornerRadius="8,0,0,0"
+                    BorderBrush="{DynamicResource Brush.Stroke}" BorderThickness="1,1,0,0" />
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Border x:Name="AdminBanner" Visibility="Collapsed" Margin="28,18,28,0" Padding="14,10" CornerRadius="8"
+                <Border x:Name="AdminBanner" Visibility="Collapsed" Margin="28,18,28,0" Padding="14,10" CornerRadius="4"
                         Background="{DynamicResource Brush.WarningSubtle}" BorderBrush="{DynamicResource Brush.Warning}" BorderThickness="1">
                     <Grid>
                         <Grid.ColumnDefinitions>

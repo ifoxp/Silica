@@ -23,7 +23,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type v:SensorRow}">
-            <Border x:Name="Bd" Height="34" Padding="10,0" CornerRadius="6" Background="Transparent" MouseLeftButtonUp="OnSensorClick">
+            <Border x:Name="Bd" Height="34" Padding="10,0" CornerRadius="4" Background="Transparent" MouseLeftButtonUp="OnSensorClick">
                 <Border.ContextMenu>
                     <ContextMenu Opened="OnSensorMenu" />
                 </Border.ContextMenu>
@@ -71,7 +71,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
+            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
                 <TextBlock Text="&#xE9D9;" Style="{StaticResource Icon}" FontSize="18" Foreground="{DynamicResource Brush.AccentText}" />
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -94,7 +94,7 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Margin="28,0,28,8">
-            <Border x:Name="DriverHint" Visibility="Collapsed" Margin="0,0,0,10" Padding="14,10" CornerRadius="8" Background="{DynamicResource Brush.AccentSubtle}">
+            <Border x:Name="DriverHint" Visibility="Collapsed" Margin="0,0,0,10" Padding="14,10" CornerRadius="4" Background="{DynamicResource Brush.AccentSubtle}">
                 <DockPanel>
                     <Button DockPanel.Dock="Right" Content="{l:T 'Get PawnIO'}" Click="OnGetDriver" Margin="16,0,0,0" />
                     <TextBlock Style="{StaticResource Text.Base}" TextWrapping="Wrap" VerticalAlignment="Center"

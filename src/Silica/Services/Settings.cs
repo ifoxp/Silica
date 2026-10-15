@@ -32,10 +32,15 @@ public sealed class AppSettings
 {
     public string Language { get; set; } = "auto";
     public AppTheme Theme { get; set; } = AppTheme.System;
-    public string Accent { get; set; } = "#4C8DFF";
+    /// <summary>A preset colour like "#4C8DFF", or "system" for the Windows accent colour.</summary>
+    public string Accent { get; set; } = ThemeService.SystemAccent;
+    /// <summary>Mica behind the title bar and sidebar on Windows 11.</summary>
+    public bool Mica { get; set; } = true;
     public bool Fahrenheit { get; set; }
     public string StartPage { get; set; } = "dashboard";
     public bool SidebarCollapsed { get; set; }
+    /// <summary>Sidebar groups folded away. Software starts folded so the sidebar fits without scrolling.</summary>
+    public List<Views.NavSection> CollapsedNavGroups { get; set; } = [Views.NavSection.Software];
     public RenderingMode Rendering { get; set; } = RenderingMode.Automatic;
     public WindowPlacement Window { get; set; } = new();
 
@@ -44,6 +49,8 @@ public sealed class AppSettings
     public bool ShowVirtualNetwork { get; set; }
     public List<string> ChartSensors { get; set; } = [];
     public List<string> HiddenSensors { get; set; } = [];
+    /// <summary>Names people gave to sensors, by sensor id ("Temperature #1" becomes "Chipset").</summary>
+    public Dictionary<string, string> SensorNames { get; set; } = [];
 
     public bool TrayEnabled { get; set; }
     public bool CloseToTray { get; set; }

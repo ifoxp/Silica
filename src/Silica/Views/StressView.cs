@@ -83,7 +83,7 @@ public sealed class StressView : UserControl, INavigable
         header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         header.Children.Add(new Border
         {
-            Width = 40, Height = 40, CornerRadius = new CornerRadius(10), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
+            Width = 40, Height = 40, CornerRadius = new CornerRadius(8), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
             Child = new TextBlock { Style = R<Style>("Icon"), Text = "", FontSize = 18, Foreground = R<Brush>("Brush.AccentText") }
         });
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };

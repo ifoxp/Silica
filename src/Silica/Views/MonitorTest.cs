@@ -51,7 +51,7 @@ public sealed class MonitorTestView : UserControl, INavigable
         header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         header.Children.Add(new Border
         {
-            Width = 40, Height = 40, CornerRadius = new CornerRadius(10), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
+            Width = 40, Height = 40, CornerRadius = new CornerRadius(8), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
             Child = new TextBlock { Style = R<Style>("Icon"), Text = "", FontSize = 18, Foreground = R<Brush>("Brush.AccentText") }
         });
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
@@ -69,7 +69,7 @@ public sealed class MonitorTestView : UserControl, INavigable
         {
             var (title, hint) = Patterns[i];
             var index = i;
-            var preview = new Border { Height = 70, CornerRadius = new CornerRadius(6), ClipToBounds = true, Child = MonitorTestWindow.Pattern(i, 220, 70, preview: true), BorderBrush = R<Brush>("Brush.Stroke"), BorderThickness = new Thickness(1) };
+            var preview = new Border { Height = 70, CornerRadius = new CornerRadius(4), ClipToBounds = true, Child = MonitorTestWindow.Pattern(i, 220, 70, preview: true), BorderBrush = R<Brush>("Brush.Stroke"), BorderThickness = new Thickness(1) };
             var stack = new StackPanel();
             stack.Children.Add(preview);
             stack.Children.Add(new TextBlock { Style = R<Style>("Text.Section"), Text = loc.T(title), Margin = new Thickness(0, 10, 0, 2) });
@@ -104,8 +104,8 @@ public sealed class MonitorTestWindow : Window
 {
     private readonly Grid _root = new() { Background = Brushes.Black };
     private readonly Border _hint;
-    private readonly TextBlock _hintTitle = new() { FontSize = 16, FontWeight = FontWeights.SemiBold };
-    private readonly TextBlock _hintText = new() { FontSize = 13, Margin = new Thickness(0, 4, 0, 0) };
+    private readonly TextBlock _hintTitle = new() { FontSize = 20, FontWeight = FontWeights.SemiBold };
+    private readonly TextBlock _hintText = new() { FontSize = 14, Margin = new Thickness(0, 4, 0, 0) };
     private int _index;
 
     public MonitorTestWindow(Window? owner, int start)
@@ -137,7 +137,7 @@ public sealed class MonitorTestWindow : Window
         hintStack.Children.Add(new TextBlock { FontSize = 12, Margin = new Thickness(0, 8, 0, 0), Opacity = 0.6, Foreground = Brushes.White, Text = Loc.Instance.T("Arrow keys or click: next pattern    Esc: exit") });
         _hint = new Border
         {
-            Child = hintStack, Background = new SolidColorBrush(Color.FromArgb(220, 20, 22, 26)), CornerRadius = new CornerRadius(10),
+            Child = hintStack, Background = new SolidColorBrush(Color.FromArgb(220, 20, 22, 26)), CornerRadius = new CornerRadius(8),
             Padding = new Thickness(18, 12, 18, 12), Margin = new Thickness(0, 0, 0, 48),
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, IsHitTestVisible = false
         };

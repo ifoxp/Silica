@@ -13,7 +13,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Border Width="40" Height="40" CornerRadius="10" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
+            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Brush.AccentSubtle}" Margin="0,0,14,0">
                 <TextBlock Text="&#xEC4A;" Style="{StaticResource Icon}" FontSize="18" Foreground="{DynamicResource Brush.AccentText}" />
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">

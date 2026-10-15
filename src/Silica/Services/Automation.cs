@@ -22,6 +22,8 @@ public static class Automation
             Settings.Current.Theme = mode;
             ThemeService.Apply();
         }
+        if (args.Render is { } render && Enum.TryParse<RenderingMode>(render, true, out var rendering))
+            Settings.Current.Rendering = rendering;
         if (args.Size is { } size && size.Split('x') is [var w, var h]
             && double.TryParse(w, CultureInfo.InvariantCulture, out var width) && double.TryParse(h, CultureInfo.InvariantCulture, out var height))
         {

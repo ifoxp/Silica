@@ -30,18 +30,24 @@ public static class NavCatalog
             new("sensors", "Sensors", "", NavSection.Main, () => new SensorsView())
         };
 
-        foreach (var p in InfoProviders.All)
+        void AddPages(InfoCategory category)
         {
-            var section = p.Category == InfoCategory.Hardware ? NavSection.Hardware : NavSection.Software;
-            var provider = p;
-            items.Add(new NavItem(p.Id, p.Title, p.Icon, section, () => new InfoPageView(provider), provider));
+            foreach (var p in InfoProviders.All.Where(p => p.Category == category))
+            {
+                var section = p.Category == InfoCategory.Hardware ? NavSection.Hardware : NavSection.Software;
+                var provider = p;
+                items.Add(new NavItem(p.Id, p.Title, p.Icon, section, () => new InfoPageView(provider), provider));
+            }
         }
 
+        // Tools come before the long software list, so they stay in view without scrolling.
+        AddPages(InfoCategory.Hardware);
         items.Add(new("benchmarks", "Benchmarks", "", NavSection.Tools, () => new BenchmarksView()));
         items.Add(new("diskbench", "Disk benchmark", "", NavSection.Tools, () => new DiskBenchView()));
         items.Add(new("stress", "Stability test", "", NavSection.Tools, () => new StressView()));
         items.Add(new("monitortest", "Monitor test", "", NavSection.Tools, () => new MonitorTestView()));
         items.Add(new("report", "Report", "", NavSection.Tools, () => new ReportView()));
+        AddPages(InfoCategory.Software);
         items.Add(new("settings", "Settings", "", NavSection.Main, () => new SettingsView()));
         return items;
     }

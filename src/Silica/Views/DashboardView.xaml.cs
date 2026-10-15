@@ -108,18 +108,19 @@ public partial class DashboardView : UserControl, INavigable
 
         CpuName.Text = k.Cpu?.Name ?? CpuNameFallback();
         Set(CpuLoad, k.CpuLoad, v => v.ToString("0", CultureInfo.CurrentCulture) + "%");
-        CpuRing.Value = (k.CpuLoad?.Value ?? 0) / 100.0;
+        CpuBar.Value = k.CpuLoad?.Value ?? 0;
         CpuTemp.Text = Format(k.CpuTemp);
+        CpuTemp.Foreground = TemperatureBrush(k.CpuTemp);
         CpuClock.Text = Format(k.CpuClock);
         CpuPower.Text = Format(k.CpuPower);
         CpuTemp.ToolTip = k.CpuTemp == null && !Elevation.IsElevated ? loc.T("Needs administrator rights") : null;
-        CpuSpark.Reading = k.CpuLoad;
-        CpuSpark.Refresh();
+        ShowLoad(CpuChart, k.CpuLoad);
 
         GpuName.Text = k.Gpu?.Name ?? "—";
         Set(GpuLoad, k.GpuLoad, v => v.ToString("0", CultureInfo.CurrentCulture) + "%");
-        GpuRing.Value = (k.GpuLoad?.Value ?? 0) / 100.0;
+        GpuBar.Value = k.GpuLoad?.Value ?? 0;
         GpuTemp.Text = Format(k.GpuTemp);
+        GpuTemp.Foreground = TemperatureBrush(k.GpuTemp);
         GpuClock.Text = Format(k.GpuClock);
         GpuPower.Text = Format(k.GpuPower);
         GpuMemory.Text = k.GpuMemoryUsed?.Value is { } used
@@ -127,8 +128,7 @@ public partial class DashboardView : UserControl, INavigable
                 ? $"{used / 1024:0.0} / {total / 1024:0} {Fmt.Unit("GB")}"
                 : SensorFormat.Format(SensorKind.SmallData, used)
             : "—";
-        GpuSpark.Reading = k.GpuLoad;
-        GpuSpark.Refresh();
+        ShowLoad(GpuChart, k.GpuLoad);
 
         if (k.RamUsed?.Value is { } ramUsed && k.RamAvailable?.Value is { } ramFree)
         {
@@ -225,21 +225,29 @@ public partial class DashboardView : UserControl, INavigable
             foreach (var t in board) list.Add((Loc.Instance.T(t.Name), t));
             foreach (var f in k.Fans.Take(6)) list.Add((Loc.Instance.T(f.Name), f));
 
-            foreach (var (title, reading) in list)
+            var s = Settings.Current;
+            foreach (var (original, reading) in list)
             {
-                var value = new TextBlock { Style = (Style)FindResource("Text.Number"), FontSize = 17, FontWeight = FontWeights.SemiBold, FontFamily = (FontFamily)FindResource("Font.Display") };
+                if (s.HiddenSensors.Contains(reading.Id)) continue;
+                var title = s.SensorNames.GetValueOrDefault(reading.Id) ?? original;
+                var value = new TextBlock { Style = (Style)FindResource("Text.Number"), FontSize = 20, FontWeight = FontWeights.SemiBold, FontFamily = (FontFamily)FindResource("Font.Display") };
                 var stack = new StackPanel();
-                stack.Children.Add(new TextBlock { Style = (Style)FindResource("Text.Caption"), Text = title, ToolTip = title });
+                stack.Children.Add(new TextBlock { Style = (Style)FindResource("Text.Caption"), Text = title });
                 stack.Children.Add(value);
-                Thermals.Children.Add(new Border
+                var tile = new Border
                 {
-                    Style = (Style)FindResource("Panel"), Width = 178, Margin = new Thickness(0, 0, 10, 10), Child = stack
-                });
+                    Style = (Style)FindResource("Panel"), Width = 178, Margin = new Thickness(0, 0, 10, 10), Child = stack,
+                    // The tooltip says where the reading comes from, which matters once it has been renamed.
+                    ToolTip = $"{Loc.Instance.T(reading.Name)}  ·  {reading.Device.Name}",
+                    ContextMenu = new ContextMenu()
+                };
+                tile.ContextMenu.Opened += (_, _) => FillTileMenu(tile.ContextMenu, reading, original);
+                Thermals.Children.Add(tile);
                 _thermals.Add((reading, value));
             }
 
             var hub = SensorHub.Shared;
-            ThermalsEmpty.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            ThermalsEmpty.Visibility = _thermals.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             ThermalsEmpty.Text = hub.State == SensorHubState.Opening || hub.Devices.Count == 0
                 ? Loc.Instance.T("Reading sensors...")
                 : Elevation.IsElevated
@@ -251,12 +259,78 @@ public partial class DashboardView : UserControl, INavigable
         {
             // Without administrator rights some temperature sensors exist but read zero.
             value.Text = reading.Kind == SensorKind.Temperature && reading.Value is <= 0 ? "—" : SensorFormat.Format(reading.Kind, reading.Value);
-            value.Foreground = reading.Kind == SensorKind.Temperature && reading.Value is > 85
-                ? (Brush)FindResource("Brush.Danger")
-                : reading.Kind == SensorKind.Temperature && reading.Value is > 75
-                    ? (Brush)FindResource("Brush.Warning")
-                    : (Brush)FindResource("Brush.Text");
+            value.Foreground = TemperatureBrush(reading);
         }
+    }
+
+    // Normal ranges differ a lot: 90 °C is routine for a desktop processor and a problem for an SSD.
+    private static (float Warn, float Danger) Limits(SensorReading r) => r.Device.Kind switch
+    {
+        DeviceKind.Cpu => (85, 95),
+        DeviceKind.Gpu when r.Name.Contains("Hot Spot") || r.Name.Contains("Memory") => (95, 105),
+        DeviceKind.Gpu => (80, 88),
+        DeviceKind.Storage => (60, 70),
+        _ => (75, 90)
+    };
+
+    private Brush TemperatureBrush(SensorReading? r)
+    {
+        if (r is not { Kind: SensorKind.Temperature, Value: > 0 and var v }) return (Brush)FindResource("Brush.Text");
+        var (warn, danger) = Limits(r);
+        return (Brush)FindResource(v >= danger ? "Brush.Danger" : v >= warn ? "Brush.Warning" : "Brush.Text");
+    }
+
+    private void FillTileMenu(ContextMenu menu, SensorReading reading, string original)
+    {
+        var loc = Loc.Instance;
+        var s = Settings.Current;
+        menu.Items.Clear();
+        void Item(string text, Action action)
+        {
+            var mi = new MenuItem { Header = loc.T(text) };
+            mi.Click += (_, _) => action();
+            menu.Items.Add(mi);
+        }
+        Item("Rename...", () => Rename(reading, original));
+        Item("Hide this sensor", () =>
+        {
+            s.HiddenSensors.Add(reading.Id);
+            Settings.Touch();
+            _builtFor = null;
+            Tick();
+        });
+        if (s.HiddenSensors.Count > 0)
+            Item("Show hidden sensors", () =>
+            {
+                s.HiddenSensors.Clear();
+                Settings.Touch();
+                _builtFor = null;
+                Tick();
+            });
+    }
+
+    private void Rename(SensorReading reading, string original)
+    {
+        var s = Settings.Current;
+        var box = new TextBox { Text = s.SensorNames.GetValueOrDefault(reading.Id) ?? original, MaxLength = 40 };
+        box.Loaded += (_, _) => { box.Focus(); box.SelectAll(); };
+        if (!ErrorDialog.Confirm(Window.GetWindow(this), Loc.Instance.T("Rename sensor"),
+                Loc.Instance.T("Name shown on the overview. Leave it empty to use the original name."), Loc.Instance.T("OK"), "\uE8AC", box))
+            return;
+        var name = box.Text.Trim();
+        if (name.Length == 0 || name == original) s.SensorNames.Remove(reading.Id);
+        else s.SensorNames[reading.Id] = name;
+        Settings.Touch();
+        _builtFor = null;
+        Tick();
+    }
+
+    private static void ShowLoad(Controls.LineChart chart, SensorReading? load)
+    {
+        if (load == null) chart.Series = [];
+        else if (chart.Series.Count == 0 || chart.Series[0].Reading != load)
+            chart.Series = [new Controls.ChartSeries(load, ThemeService.Accent, Loc.Instance.T("Load"))];
+        chart.Refresh(SensorHub.Shared.Interval.TotalSeconds);
     }
 
     private static void Set(TextBlock target, SensorReading? reading, Func<float, string> format) =>

@@ -24,6 +24,7 @@ public partial class MainWindow : Window
 {
     private readonly IReadOnlyList<NavItem> _items = NavCatalog.Build();
     private readonly Dictionary<string, RadioButton> _buttons = [];
+    private readonly Dictionary<NavSection, (ToggleButton Header, List<RadioButton> Items)> _groups = [];
     private NavItem? _current;
     private readonly System.Windows.Threading.DispatcherTimer _searchRefresh = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private bool _reallyClose;
@@ -110,6 +111,8 @@ public partial class MainWindow : Window
     public void Navigate(string id, string? target = null)
     {
         var item = _items.FirstOrDefault(i => i.Id == id) ?? _items[0];
+        // Opening a page from search or a link unfolds its group, so the selection stays visible.
+        if (_groups.TryGetValue(item.Section, out var group) && group.Header.IsChecked != true) group.Header.IsChecked = true;
         if (_buttons.TryGetValue(item.Id, out var button) && button.IsChecked != true) button.IsChecked = true;
 
         if (_current != item)
@@ -143,6 +146,7 @@ public partial class MainWindow : Window
         NavPanel.Children.Clear();
         NavFooter.Children.Clear();
         _buttons.Clear();
+        _groups.Clear();
 
         NavSection? section = null;
         foreach (var item in _items)
@@ -167,13 +171,21 @@ public partial class MainWindow : Window
             {
                 section = item.Section;
                 if (item.Section != NavSection.Main)
-                    NavPanel.Children.Add(new TextBlock
+                {
+                    var key = item.Section;
+                    var header = new ToggleButton
                     {
-                        Style = (Style)FindResource("NavSection"),
-                        Text = SectionTitle(item.Section),
-                        Tag = item.Section
-                    });
+                        Style = (Style)FindResource("NavGroup"),
+                        Content = SectionTitle(key),
+                        IsChecked = !Settings.Current.CollapsedNavGroups.Contains(key)
+                    };
+                    header.Checked += (_, _) => SetGroup(key, true);
+                    header.Unchecked += (_, _) => SetGroup(key, false);
+                    _groups[key] = (header, []);
+                    NavPanel.Children.Add(header);
+                }
             }
+            if (_groups.TryGetValue(item.Section, out var g)) g.Items.Add(button);
             NavPanel.Children.Add(button);
         }
         ApplySidebarState();
@@ -187,8 +199,7 @@ public partial class MainWindow : Window
             b.Content = Loc.Instance.T(item.Title);
             b.ToolTip = Settings.Current.SidebarCollapsed ? b.Content : null;
         }
-        foreach (var t in NavPanel.Children.OfType<TextBlock>())
-            if (t.Tag is NavSection s) t.Text = SectionTitle(s);
+        foreach (var (s, g) in _groups) g.Header.Content = SectionTitle(s);
     }
 
     private static string SectionTitle(NavSection s) => Loc.Instance.T(s switch
@@ -196,7 +207,7 @@ public partial class MainWindow : Window
         NavSection.Hardware => "Hardware",
         NavSection.Software => "Software",
         _ => "Tools"
-    }).ToUpper(System.Globalization.CultureInfo.CurrentUICulture);
+    });
 
     private bool _autoCompact;
 
@@ -206,9 +217,23 @@ public partial class MainWindow : Window
         SidebarColumn.Width = new GridLength(compact ? 62 : 236);
         Ui.SetCompact(NavPanel, compact);
         Ui.SetCompact(NavFooter, compact);
-        foreach (var t in NavPanel.Children.OfType<TextBlock>()) t.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+        // The icon-only sidebar shows every page; folding only applies with labels.
+        foreach (var (_, g) in _groups)
+        {
+            g.Header.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+            foreach (var b in g.Items) b.Visibility = compact || g.Header.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        }
         foreach (var (_, b) in _buttons) b.ToolTip = compact ? b.Content : null;
         SidebarToggle.ToolTip = Loc.Instance.T(compact ? "Expand sidebar" : "Collapse sidebar");
+    }
+
+    private void SetGroup(NavSection section, bool expanded)
+    {
+        var collapsed = Settings.Current.CollapsedNavGroups;
+        collapsed.Remove(section);
+        if (!expanded) collapsed.Add(section);
+        Settings.Touch();
+        ApplySidebarState();
     }
 
     private void OnToggleSidebar(object sender, RoutedEventArgs e)

@@ -39,6 +39,9 @@ public sealed class LineChart : FrameworkElement
     public double? FixedMin { get; set; }
     public double? FixedMax { get; set; }
 
+    /// <summary>Shade the area under each line; meant for a single series.</summary>
+    public bool FillArea { get; set; }
+
     public IReadOnlyList<ChartSeries> Series
     {
         get => _series;
@@ -105,7 +108,7 @@ public sealed class LineChart : FrameworkElement
         {
             var y = Math.Round(plot.Bottom - (t - min) / range * plot.Height) + 0.5;
             dc.DrawLine(gridPen, new Point(plot.Left, y), new Point(plot.Right, y));
-            var label = new FormattedText(AxisLabel(kind, t), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, 11, text3, dpi);
+            var label = new FormattedText(AxisLabel(kind, t), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, 12, text3, dpi);
             dc.DrawText(label, new Point(plot.Left - 8 - label.Width, y - label.Height / 2));
         }
 
@@ -115,7 +118,7 @@ public sealed class LineChart : FrameworkElement
             var x = plot.Left + plot.Width * i / 4;
             var ago = seconds * (4 - i) / 4;
             var caption = i == 4 ? Loc.Instance.T("now") : "-" + FormatAgo(ago);
-            var ft = new FormattedText(caption, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, 11, text3, dpi);
+            var ft = new FormattedText(caption, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, 12, text3, dpi);
             var tx = i == 0 ? x : i == 4 ? x - ft.Width : x - ft.Width / 2;
             dc.DrawText(ft, new Point(tx, plot.Bottom + 4));
         }
@@ -138,6 +141,22 @@ public sealed class LineChart : FrameworkElement
                 }
             }
             g.Freeze();
+            if (FillArea)
+            {
+                var area = new StreamGeometry();
+                using (var ctx = area.Open())
+                {
+                    ctx.BeginFigure(new Point(x0, plot.Bottom), true, true);
+                    for (var i = 0; i < count; i++)
+                        ctx.LineTo(new Point(x0 + i * step, plot.Bottom - (SensorFormat.Display(kind, data[i]) - min) / range * plot.Height), false, false);
+                    ctx.LineTo(new Point(x0 + (count - 1) * step, plot.Bottom), false, false);
+                }
+                area.Freeze();
+                var c = series.Color;
+                var fill = new LinearGradientBrush(Color.FromArgb(80, c.R, c.G, c.B), Color.FromArgb(8, c.R, c.G, c.B), 90);
+                fill.Freeze();
+                dc.DrawGeometry(fill, null, area);
+            }
             var pen = new Pen(new SolidColorBrush(series.Color), 1.8) { LineJoin = PenLineJoin.Round };
             pen.Freeze();
             dc.DrawGeometry(null, pen, g);

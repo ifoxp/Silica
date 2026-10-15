@@ -150,6 +150,7 @@ public sealed class CommandLine
                 case "--shot": ShotPath = Next(); break;
                 case "--page": Page = Next(); break;
                 case "--theme": Theme = Next(); break;
+                case "--render": Render = Next(); break;
                 case "--size": Size = Next(); break;
                 case "--wait": Wait = double.TryParse(Next(), System.Globalization.CultureInfo.InvariantCulture, out var w) ? w : 3; break;
                 case "--search": Search = Next(); break;
@@ -167,6 +168,7 @@ public sealed class CommandLine
     public string? ShotPath { get; }
     public string? Page { get; }
     public string? Theme { get; }
+    public string? Render { get; }
     public string? Size { get; }
     public double Wait { get; } = 3;
     public string? Search { get; }

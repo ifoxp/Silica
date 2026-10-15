@@ -46,7 +46,7 @@ public static class AlertDialog
         };
 
         var root = new StackPanel { Margin = new Thickness(24, 22, 24, 20) };
-        root.Children.Add(new TextBlock { Style = (Style)app.FindResource("Text.Section"), FontSize = 16, Text = loc.T("New alert") });
+        root.Children.Add(new TextBlock { Style = (Style)app.FindResource("Text.Section"), FontSize = 20, Text = loc.T("New alert") });
         root.Children.Add(new TextBlock
         {
             Style = (Style)app.FindResource("Text.Secondary"), Margin = new Thickness(0, 6, 0, 16), TextWrapping = TextWrapping.Wrap,

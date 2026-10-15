@@ -222,7 +222,7 @@ public partial class InfoPageView : UserControl, INavigable
                 Child = grid,
                 Padding = new Thickness(8, 0, 8, 0),
                 Margin = new Thickness(-8, 0, -8, 0),
-                CornerRadius = new CornerRadius(6),
+                CornerRadius = new CornerRadius(4),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
                 Tag = item,

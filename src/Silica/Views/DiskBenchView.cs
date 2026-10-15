@@ -73,7 +73,7 @@ public sealed class DiskBenchView : UserControl, INavigable
         header.ColumnDefinitions.Add(new ColumnDefinition());
         header.Children.Add(new Border
         {
-            Width = 40, Height = 40, CornerRadius = new CornerRadius(10), Background = (Brush)app.FindResource("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
+            Width = 40, Height = 40, CornerRadius = new CornerRadius(8), Background = (Brush)app.FindResource("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
             Child = new TextBlock { Style = (Style)app.FindResource("Icon"), Text = "", FontSize = 18, Foreground = (Brush)app.FindResource("Brush.AccentText") }
         });
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
@@ -124,8 +124,8 @@ public sealed class DiskBenchView : UserControl, INavigable
         table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
         table.ColumnDefinitions.Add(new ColumnDefinition());
         table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        AddCell(table, new TextBlock { Style = (Style)app.FindResource("Text.Overline"), Text = loc.T("Read").ToUpper(CultureInfo.CurrentUICulture), Margin = new Thickness(2, 0, 0, 8) }, 0, 2);
-        AddCell(table, new TextBlock { Style = (Style)app.FindResource("Text.Overline"), Text = loc.T("Write").ToUpper(CultureInfo.CurrentUICulture), Margin = new Thickness(2, 0, 0, 8) }, 0, 4);
+        AddCell(table, new TextBlock { Style = (Style)app.FindResource("Text.Overline"), Text = loc.T("Read"), Margin = new Thickness(2, 0, 0, 8) }, 0, 2);
+        AddCell(table, new TextBlock { Style = (Style)app.FindResource("Text.Overline"), Text = loc.T("Write"), Margin = new Thickness(2, 0, 0, 8) }, 0, 4);
 
         for (var i = 0; i < Rows.Length; i++)
         {

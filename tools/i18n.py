@@ -38,7 +38,7 @@ IGNORE = {
     "Missing \"language\" section", "Missing language code", "NumberOfCores", "ProcessorNameString", "ProductName",
     "References", "ReportFormat", "Screenshot failed", "Sensor log not started", "Sensor log write failed",
     "Sensor logs", "Silica", "Silica bench ", "Silica overlay", "Silica-bench.tmp", "SMBIOSMemoryType", "Stable text",
-    "Stable text: details", "Startup task", "Start with Windows is only available for a copy in Program Files.", "$ErrorActionPreference = 'SilentlyContinue'", "InstallLocation", "Start-Sleep -Seconds 1", "Uninstall", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
+    "Stable text: details", "Startup task", "Start with Windows is only available for a copy in Program Files.", "$ErrorActionPreference = 'SilentlyContinue'", "InstallLocation", "Start-Sleep -Seconds 1", "Uninstall", "AccentColor", "Hot Spot", "NavGroup", "TaskbarCreated", "UI error", "Unhandled", "Unobserved task", "UTF-16",
     "Windows 10", "Windows 11", "yyyy-MM-dd HH:mm:ss", "Report failed", "Report not saved", "Disk benchmark failed",
     "Stability test failed to start", "Languages", "Native name of the language", "English name of the language",
     "Task Scheduler is not available", "AES-NI", "no AES-NI", "AVX", "AVX-512", "AVX2+FMA", "FP32", "FP64", "FPU", "SSE",
@@ -126,7 +126,7 @@ def looks_like_text(s: str) -> bool:
         return False
     if re.fullmatch(r"[a-z0-9\-_.:/]+", s):  # ids, file names, extensions
         return False
-    if re.fullmatch(r"[A-Za-z]+\.[A-Za-z.]+", s):  # Type.Member, resource keys
+    if re.fullmatch(r"[A-Za-z]+\.[A-Za-z][A-Za-z.]*", s):  # Type.Member, resource keys (not "Rename...")
         return False
     if s.startswith(("--", "*.")) or s.endswith((".dll", ".json", ".exe", ".xaml", ".ico", ".csv")):
         return False

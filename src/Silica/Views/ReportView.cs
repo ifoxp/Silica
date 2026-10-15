@@ -45,7 +45,7 @@ public sealed class ReportView : UserControl, INavigable
         header.ColumnDefinitions.Add(new ColumnDefinition());
         header.Children.Add(new Border
         {
-            Width = 40, Height = 40, CornerRadius = new CornerRadius(10), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
+            Width = 40, Height = 40, CornerRadius = new CornerRadius(8), Background = R<Brush>("Brush.AccentSubtle"), Margin = new Thickness(0, 0, 14, 0),
             Child = new TextBlock { Style = R<Style>("Icon"), Text = "", FontSize = 18, Foreground = R<Brush>("Brush.AccentText") }
         });
         var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
@@ -101,7 +101,7 @@ public sealed class ReportView : UserControl, INavigable
             pages.Children.Add(new TextBlock
             {
                 Style = R<Style>("Text.Overline"), Margin = new Thickness(0, 12, 0, 8),
-                Text = loc.T(group.Key == InfoCategory.Hardware ? "Hardware" : "Software").ToUpper(System.Globalization.CultureInfo.CurrentUICulture)
+                Text = loc.T(group.Key == InfoCategory.Hardware ? "Hardware" : "Software")
             });
             var grid = new AutoFitPanel { MinItemWidth = 190, MaxColumns = 3, Spacing = 8, StretchRows = false };
             foreach (var p in group)

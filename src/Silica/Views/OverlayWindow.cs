@@ -39,7 +39,7 @@ public sealed class OverlayWindow : Window
         _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _panel.Child = _grid;
-        _panel.CornerRadius = new CornerRadius(10);
+        _panel.CornerRadius = new CornerRadius(8);
         _panel.Padding = new Thickness(14, 10, 14, 10);
         _panel.BorderThickness = new Thickness(1);
         Content = _panel;

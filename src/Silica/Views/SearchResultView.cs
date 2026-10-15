@@ -19,7 +19,7 @@ public static class SearchResultView
 
         var iconBox = new Border
         {
-            Width = 30, Height = 30, CornerRadius = new CornerRadius(7), HorizontalAlignment = HorizontalAlignment.Left,
+            Width = 30, Height = 30, CornerRadius = new CornerRadius(4), HorizontalAlignment = HorizontalAlignment.Left,
             Background = hit.Kind == SearchKind.Page ? ThemeService.BrushOf("Brush.AccentSubtle") : ThemeService.BrushOf("Brush.SurfaceAlt"),
             Child = new TextBlock
             {
@@ -53,7 +53,7 @@ public static class SearchResultView
         Grid.SetColumn(kind, 2);
         grid.Children.Add(kind);
 
-        var border = new Border { Child = grid, Padding = new Thickness(8, 7, 8, 7), CornerRadius = new CornerRadius(7), Tag = hit, Cursor = System.Windows.Input.Cursors.Hand, Background = Brushes.Transparent };
+        var border = new Border { Child = grid, Padding = new Thickness(8, 7, 8, 7), CornerRadius = new CornerRadius(4), Tag = hit, Cursor = System.Windows.Input.Cursors.Hand, Background = Brushes.Transparent };
         border.MouseEnter += (_, _) => { if (!IsSelected(border)) border.Background = ThemeService.BrushOf("Brush.Hover"); };
         border.MouseLeave += (_, _) => { if (!IsSelected(border)) border.Background = Brushes.Transparent; };
         border.Loaded += (_, _) =>
