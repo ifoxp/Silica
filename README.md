@@ -137,6 +137,17 @@ inherits its rights. **Start with Windows** creates a task that starts Silica
 elevated without a prompt, so it is only offered for the installed copy in Program
 Files — a portable `Silica.exe` in Downloads could be replaced by any program.
 
+## What comes next
+
+**A shared hardware database**, once the project reaches **100 stars** on GitHub.
+Benchmark results and hardware configurations from people who opt in would let you
+compare your processor, memory and drives with the same parts in other computers, and
+see whether a result is normal for that part. It needs a server and enough people taking
+part to be meaningful, which is why it waits for the star count. Sending anything would
+be off by default and anonymous; until then Silica stays fully offline.
+
+If Silica is useful to you, a star helps it get there.
+
 ## Building
 
 ```powershell

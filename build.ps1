@@ -5,7 +5,7 @@
 #
 # Requires the .NET 9 SDK. WiX is restored as a local tool (.config/dotnet-tools.json).
 
-param([string]$Version = "1.1.0")
+param([string]$Version = "1.2.0")
 
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
