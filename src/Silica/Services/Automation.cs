@@ -36,6 +36,7 @@ public static class Automation
         window.Top = 20;
         window.Topmost = true;
         window.Show();
+        if (args.Size == "max") window.WindowState = WindowState.Maximized;
         var page = (args.Page ?? "dashboard").Split(':', 2);
         window.Navigate(page[0], page.Length > 1 ? page[1] : null);
 

@@ -13,7 +13,7 @@ public sealed class DisplaysProvider : IInfoProvider
     public int Order => 45;
     public string Icon => "\uE7F4";
 
-    private sealed record Output(string Device, string Adapter, string? MonitorName, string? MonitorInstance, bool Primary,
+    internal sealed record Output(string Device, string Adapter, string? MonitorName, string? MonitorInstance, bool Primary,
         Native.DevMode Mode, uint? Dpi);
 
     internal sealed record WmiMonitor(string Instance, string? Name, string? Vendor, string? ProductCode, string? Serial,
@@ -119,7 +119,7 @@ public sealed class DisplaysProvider : IInfoProvider
                 r.Int("WeekOfManufacture"), r.Int("YearOfManufacture"), r.Bool("Active") ?? true))
             .ToList();
 
-    private static List<Output> Outputs()
+    internal static List<Output> Outputs()
     {
         var dpis = MonitorDpis();
         var list = new List<Output>();
@@ -183,7 +183,7 @@ public sealed class DisplaysProvider : IInfoProvider
         return result;
     }
 
-    private static IEnumerable<(uint W, uint H, List<uint> Rates)> Modes(string device)
+    internal static IEnumerable<(uint W, uint H, List<uint> Rates)> Modes(string device)
     {
         var modes = new Dictionary<(uint, uint), SortedSet<uint>>();
         var dm = Native.DevMode.Create();

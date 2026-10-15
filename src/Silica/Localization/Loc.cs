@@ -124,6 +124,19 @@ public sealed partial class Loc : INotifyPropertyChanged
     private LanguagePack? BaseOf(LanguagePack? pack) =>
         pack is { IsVariant: true } && Find(pack.Base) is { } b && b != pack && b != _english ? b : null;
 
+    /// <summary>
+    /// The few languages worth listing first: English, Ukrainian, the Windows display language, the keyboard
+    /// languages and the one in use.
+    /// </summary>
+    public IReadOnlyList<LanguagePack> Suggested()
+    {
+        var wanted = new HashSet<LanguagePack>(_searchPacks);
+        if (Find("uk") is { } uk) wanted.Add(uk);
+        if (Match(DisplayCulture) is { } display) wanted.Add(display);
+        wanted.Add(_current);
+        return _packs.Where(wanted.Contains).ToList();
+    }
+
     public LanguagePack? Find(string? code) => code == null ? null : _packs.FirstOrDefault(p => p.Code == code.ToLowerInvariant());
 
     /// <summary>Best pack for a culture: exact name, then script variant (zh-Hant for Taiwan), then the language alone.</summary>

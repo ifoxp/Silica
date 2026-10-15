@@ -338,9 +338,12 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource Radius.Control}">
-                        <Grid Margin="{TemplateBinding Padding}">
-                            <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Foreground="{DynamicResource Brush.Text3}"
-                                       VerticalAlignment="Center" Margin="2,0,0,0" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Grid>
+                            <!-- The text host applies Padding itself; the hint gets the same offset so both start at one point. -->
+                            <Border Padding="{TemplateBinding Padding}" IsHitTestVisible="False">
+                                <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Foreground="{DynamicResource Brush.Text3}"
+                                           VerticalAlignment="Center" Margin="2,0,0,0" Visibility="Collapsed" />
+                            </Border>
                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
                         </Grid>

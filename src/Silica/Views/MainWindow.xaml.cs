@@ -45,11 +45,14 @@ public partial class MainWindow : Window
         };
         SourceInitialized += (_, _) =>
         {
+            // The window may already be maximized from the saved placement, before StateChanged was hooked up.
+            ApplyFrameInset();
             ThemeService.ApplyWindowFrame(this);
             Performance.ApplyRendering(this);
             HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(WndProc);
         };
         StateChanged += (_, _) => OnStateChanged();
+        DpiChanged += (_, _) => ApplyFrameInset();
         SizeChanged += (_, _) =>
         {
             var narrow = ActualWidth < 1080;
@@ -369,11 +372,27 @@ public partial class MainWindow : Window
     private void OnStateChanged()
     {
         UpdateActivity();
-        // A maximized chrome-less window extends past the screen by the frame width.
-        Root.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
+        ApplyFrameInset();
         MaxButton.Content = WindowState == WindowState.Maximized ? "" : "";
         if (WindowState == WindowState.Minimized && Settings.Current.TrayEnabled && Settings.Current.MinimizeToTray) Hide();
     }
+
+    private void ApplyFrameInset() =>
+        Root.Margin = WindowState == WindowState.Maximized ? MaximizedOverhang() : new Thickness(0);
+
+    // A maximized window without a system frame still extends past the screen by the sizing frame plus padding,
+    // which depends on the display scale.
+    private Thickness MaximizedOverhang()
+    {
+        var dpi = VisualTreeHelper.GetDpi(this);
+        var dpiX = (uint)Math.Round(96 * dpi.DpiScaleX);
+        var x = (GetSystemMetricsForDpi(32, dpiX) + GetSystemMetricsForDpi(92, dpiX)) / dpi.DpiScaleX;
+        var y = (GetSystemMetricsForDpi(33, dpiX) + GetSystemMetricsForDpi(92, dpiX)) / dpi.DpiScaleY;
+        return new Thickness(x, y, x, y);
+    }
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetricsForDpi(int index, uint dpi);
 
     private void OnClosing(object? sender, CancelEventArgs e)
     {

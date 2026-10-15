@@ -54,10 +54,13 @@ public sealed class StorageProvider : IInfoProvider
                     g.Flag("Boot disk", di.Bool("IsBoot"));
                     g.Flag("System disk", di.Bool("IsSystem"));
                 }
-                if (reliability.TryGetValue(d.DeviceId, out var rc)) AddReliability(g, rc);
+                reliability.TryGetValue(d.DeviceId, out var rc);
+                var smart = int.TryParse(d.DeviceId, out var number) ? DriveSmart.Read(number) : null;
+                if (smart != null) AddSmart(g, smart, rc);
+                else if (rc != null) AddReliability(g, rc);
             });
         }
-        if (disks.Count > 0 && reliability.Count == 0) b.Warn(Hw.AdminHint);
+        if (disks.Count > 0 && reliability.Count == 0 && !Software.SoftwareHelpers.IsElevated()) b.Warn(Hw.AdminHint);
 
         b.Try("Partitions", () =>
         {
@@ -141,12 +144,40 @@ public sealed class StorageProvider : IInfoProvider
         return result;
     }
 
+    private static void AddSmart(PropertyBuilder g, DriveHealth h, WmiRow? windows)
+    {
+        if (h.Temperature is > 0 and var temp) g.Add("Temperature", $"{temp} °C");
+        if (windows?.Long("TemperatureMax") is > 0 and var tmax) g.Add("Max temperature", $"{tmax} °C");
+        if (h.LifeRemaining is { } life) g.Add("Wear", Fmt.T("{0} (life remaining {1})", Fmt.Percent(100 - life), Fmt.Percent(life)));
+        if (h.PowerOnHours is > 0 and var hours) g.Add("Power-on hours", Fmt.T("{0} h ({1} days)", Fmt.Number(hours), Fmt.Number(hours / 24)));
+        if (h.PowerCycles is > 0 and var cycles) g.Add("Power cycles", Fmt.Number(cycles));
+        if (h.UnsafeShutdowns is { } unsafeOff) g.Add("Unexpected power losses", Fmt.Number(unsafeOff));
+        if (h.BytesWritten is > 0 and var written) g.Add("Data written", Fmt.DecimalBytes(written));
+        if (h.BytesRead is > 0 and var read) g.Add("Data read", Fmt.DecimalBytes(read));
+        if (h.AvailableSpare is { } spare) g.Add("Available spare", Fmt.T("{0} (warning below {1})", Fmt.Percent(spare), Fmt.Percent(h.SpareThreshold ?? 0)));
+        if (h.MediaErrors is { } errors) g.Add("Media errors", Fmt.Number(errors));
+        if (h.Source == "NVMe") g.Add("Drive warnings", CriticalWarnings(h.CriticalWarning));
+    }
+
+    // Bits of the NVMe critical warning byte.
+    private static string CriticalWarnings(int bits)
+    {
+        if (bits == 0) return Fmt.T("None");
+        var list = new List<string>();
+        if ((bits & 1) != 0) list.Add(Fmt.T("Spare space below the threshold"));
+        if ((bits & 2) != 0) list.Add(Fmt.T("Temperature outside the safe range"));
+        if ((bits & 4) != 0) list.Add(Fmt.T("Reliability degraded by errors"));
+        if ((bits & 8) != 0) list.Add(Fmt.T("Drive switched to read-only"));
+        if ((bits & 16) != 0) list.Add(Fmt.T("Backup power failed"));
+        return string.Join("; ", list);
+    }
+
     private static void AddReliability(PropertyBuilder g, WmiRow r)
     {
         if (r.Long("Temperature") is > 0 and var temp) g.Add("Temperature", $"{temp} °C");
         if (r.Long("TemperatureMax") is > 0 and var tmax) g.Add("Max temperature", $"{tmax} °C");
-        // Wear is the percentage of rated endurance used; 100 - wear is what tools usually call "life remaining".
-        if (r.Long("Wear") is { } wear) g.Add("Wear", Fmt.T("{0} (life remaining {1})", Fmt.Percent(wear), Fmt.Percent(Math.Max(0, 100 - wear))));
+        // Wear is the percentage of rated endurance used. Windows reports 0 when it does not know, so 0 is not shown as "new".
+        if (r.Long("Wear") is > 0 and var wear) g.Add("Wear", Fmt.T("{0} (life remaining {1})", Fmt.Percent(wear), Fmt.Percent(Math.Max(0, 100 - wear))));
         if (r.Long("PowerOnHours") is > 0 and var hours) g.Add("Power-on hours", Fmt.Number(hours));
         if (r.Long("StartStopCycleCount") is > 0 and var ss) g.Add("Start-stop cycles", Fmt.Number(ss));
         if (r.Long("LoadUnloadCycleCount") is > 0 and var lu) g.Add("Load-unload cycles", Fmt.Number(lu));

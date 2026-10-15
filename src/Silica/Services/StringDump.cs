@@ -38,7 +38,7 @@ public static partial class StringDump
                     case PropertyBlock pb:
                         foreach (var item in pb.Items)
                         {
-                            Add(item.Label);
+                            if (item.LocalizeLabel) Add(item.Label);
                             if (item.LocalizeValue) Add(item.Value);
                         }
                         break;

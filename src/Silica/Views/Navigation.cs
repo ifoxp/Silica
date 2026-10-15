@@ -29,10 +29,16 @@ public static class NavCatalog
             new("dashboard", "Overview", "", NavSection.Main, () => new DashboardView()),
             new("sensors", "Sensors", "", NavSection.Main, () => new SensorsView())
         };
+        // The spec sheet sits with the overview: it is what people open when selling or buying a computer.
+        foreach (var p in InfoProviders.All.Where(p => p.Id == "specs"))
+        {
+            var provider = p;
+            items.Add(new NavItem(p.Id, p.Title, p.Icon, NavSection.Main, () => new InfoPageView(provider), provider));
+        }
 
         void AddPages(InfoCategory category)
         {
-            foreach (var p in InfoProviders.All.Where(p => p.Category == category))
+            foreach (var p in InfoProviders.All.Where(p => p.Category == category && p.Id != "specs"))
             {
                 var section = p.Category == InfoCategory.Hardware ? NavSection.Hardware : NavSection.Software;
                 var provider = p;

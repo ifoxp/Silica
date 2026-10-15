@@ -68,6 +68,13 @@ public sealed class PropertyBuilder(PropertyBlock block)
         _ => Add(label, value.ToString())
     };
 
+    /// <summary>Adds a row whose label is a name from the hardware (a monitor, a memory slot), never translated.</summary>
+    public PropertyBuilder Named(string name, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) block.Items.Add(new InfoProperty(name, value.Trim(), LocalizeLabel: false));
+        return this;
+    }
+
     /// <summary>Adds Yes/No (translated by the UI).</summary>
     public PropertyBuilder Flag(string label, bool? value)
     {

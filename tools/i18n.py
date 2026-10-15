@@ -50,7 +50,9 @@ IGNORE = {
 }
 
 # Used only through computed keys, so the scanner cannot see them.
-EXTRA = {"now", "Stress test started", "{0} s", "Contents", "Created"}
+EXTRA = {"now", "Stress test started", "{0} s", "Contents", "Created",
+         # service states, seen only while a service is in that state
+         "Cannot start", "In progress", "Start Pending", "Stop Pending", "Continue Pending", "Pause Pending"}
 
 # Unit symbols go through Fmt.Unit, so they are keys too.
 UNITS = {"B", "KB", "MB", "GB", "TB", "PB", "MHz", "GHz", "bps", "Kbps", "Mbps", "Gbps", "Tbps", "/s", "d",

@@ -44,8 +44,17 @@ Windows Settings cleans up the same way.
   battery, the operating system, processes, services, startup entries, scheduled
   tasks, installed programs, drivers, updates, security (Defender, firewall, TPM,
   BitLocker, VBS), users, environment, shares, fonts and the event log
+- **Spec sheet** — one page for selling or buying a computer: processor, graphics with
+  video memory, memory slots used and free with module models, drives with wear and
+  power-on hours, battery wear and cycles, screens, Windows activation. Copy it as text
+  for a listing
+- **Drive health from the drive itself** — wear, power-on hours, data written and
+  read, spare blocks and warnings come from the NVMe health log or ATA SMART, because
+  Windows leaves them empty for many drives
 - **Live sensors** — temperatures, clocks, voltages, power, fans and loads with
-  minimum, maximum and average, sparklines and charts built by clicking sensors
+  minimum, maximum and average, sparklines and charts built by clicking sensors;
+  ready-made views (Essentials, Cooling, Power) and overlay sets (Gaming, Temperatures,
+  Minimal)
 - **Benchmarks** — memory read, write, copy and latency, integer, compression, AES,
   SHA-256, FP32 and FP64, kept in a history and comparable with another computer
 - **Disk benchmark** — sequential and random speed with the Windows cache bypassed

@@ -3,7 +3,8 @@ namespace Silica.Core.Model;
 /// <summary>A single "label: value" line on an info page.</summary>
 /// <param name="Label">English label; the UI translates it.</param>
 /// <param name="LocalizeValue">True when the value is a fixed English word (Yes/No/Enabled…) that the UI may translate.</param>
-public sealed record InfoProperty(string Label, string Value, bool LocalizeValue = false);
+/// <summary>LocalizeLabel is false when the label is itself data, such as a device name.</summary>
+public sealed record InfoProperty(string Label, string Value, bool LocalizeValue = false, bool LocalizeLabel = true);
 
 public abstract class InfoBlock
 {

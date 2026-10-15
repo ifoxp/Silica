@@ -21,6 +21,7 @@ public partial class SensorsView : UserControl, INavigable
     private readonly List<LineChart> _charts = [];
     private IDisposable? _subscription;
     private SensorKind? _kindFilter;
+    private SensorPreset? _preset;
     private int _window = 120;
     private bool _dirty = true;
 
@@ -79,13 +80,16 @@ public partial class SensorsView : UserControl, INavigable
         var items = new List<SensorListRow>();
         var kinds = new SortedSet<SensorKind>();
         _rows.Clear();
+        var listed = _preset is { } p && SensorPresets.IsListed(p) ? SensorPresets.Pick(p, hub.Key).ToHashSet() : null;
+        bool Passes(SensorReading s) => _preset is { } preset
+            ? listed?.Contains(s) ?? SensorPresets.MatchesKind(preset, s)
+            : _kindFilter == null || s.Kind == _kindFilter || (_kindFilter == SensorKind.Data && s.Kind == SensorKind.SmallData);
 
         void Add(DeviceNode device)
         {
             var sensors = device.Sensors.Where(s => !hidden.Contains(s.Id)).ToList();
             foreach (var s in sensors) kinds.Add(s.Kind);
-            var visible = sensors.Where(s => (_kindFilter == null || s.Kind == _kindFilter || (_kindFilter == SensorKind.Data && s.Kind == SensorKind.SmallData))
-                                             && (q.Length == 0 || Matches(q, s, device))).ToList();
+            var visible = sensors.Where(s => Passes(s) && (q.Length == 0 || Matches(q, s, device))).ToList();
             var childStart = items.Count;
             if (visible.Count > 0)
             {
@@ -115,7 +119,7 @@ public partial class SensorsView : UserControl, INavigable
         {
             (EmptyTitle.Text, EmptyText.Text) = hub.State is SensorHubState.Opening or SensorHubState.Closed
                 ? (Loc.Instance.T("Reading sensors..."), Loc.Instance.T("This usually takes a second or two."))
-                : q.Length > 0 || _kindFilter != null
+                : q.Length > 0 || _kindFilter != null || _preset != null
                     ? (Loc.Instance.T("No matching sensors"), Loc.Instance.T("Try another word or clear the filter."))
                     : Elevation.IsElevated
                         ? (Loc.Instance.T("No sensors found"), Loc.Instance.T("Check which hardware is monitored in Settings."))
@@ -130,17 +134,26 @@ public partial class SensorsView : UserControl, INavigable
     private void BuildKindChips(IEnumerable<SensorKind> kinds)
     {
         KindChips.Children.Clear();
-        KindChips.Children.Add(Chip(null, Loc.Instance.T("All")));
+        KindChips.Children.Add(Chip(null, null, Loc.Instance.T("All")));
+        // Ready-made views first, then one chip per sensor type.
+        foreach (var preset in SensorPresets.PageFilters)
+            KindChips.Children.Add(Chip(null, preset, Loc.Instance.T(SensorPresets.Title(preset))));
+        KindChips.Children.Add(new Border
+        {
+            Width = 1, Height = 20, Margin = new Thickness(4, 0, 12, 8), VerticalAlignment = VerticalAlignment.Center,
+            Background = (System.Windows.Media.Brush)FindResource("Brush.StrokeStrong")
+        });
         foreach (var k in kinds.Select(k => k == SensorKind.SmallData ? SensorKind.Data : k).Distinct())
-            KindChips.Children.Add(Chip(k, Loc.Instance.T(SensorRow.KindTitle(k))));
+            KindChips.Children.Add(Chip(k, null, Loc.Instance.T(SensorRow.KindTitle(k))));
     }
 
-    private ToggleButton Chip(SensorKind? kind, string text)
+    private ToggleButton Chip(SensorKind? kind, SensorPreset? preset, string text)
     {
-        var chip = new ToggleButton { Style = (Style)FindResource("Chip"), Content = text, IsChecked = _kindFilter == kind };
+        var chip = new ToggleButton { Style = (Style)FindResource("Chip"), Content = text, IsChecked = _kindFilter == kind && _preset == preset };
         chip.Click += (_, _) =>
         {
             _kindFilter = kind;
+            _preset = preset;
             Rebuild();
         };
         return chip;
@@ -339,6 +352,7 @@ public partial class SensorsView : UserControl, INavigable
         if (reading == null) return;
         FilterBox.Text = "";
         _kindFilter = null;
+        _preset = null;
         _collapsed.Remove(reading.Device.Id);
         Rebuild();
         var row = _rows.FirstOrDefault(r => r.Reading.Id == sensorId);

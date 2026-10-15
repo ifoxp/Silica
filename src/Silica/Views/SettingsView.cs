@@ -144,13 +144,54 @@ public sealed class SettingsView : UserControl, INavigable
         appearance.Add(Row("Drawing", "Drawing on the processor uses about 50 MB less memory; the graphics card is smoother on 4K screens", rendering));
         body.Children.Add(Section("appearance", "Appearance", "", [.. appearance]));
 
+        // Fifty-odd languages would make a page of their own, so only the likely ones are listed up front.
         var langs = new StackPanel();
         langs.Children.Add(LanguageRow("auto", T("Automatic"), T("Same as Windows"), null, s.Language is "auto" or ""));
-        foreach (var pack in Loc.Instance.Available)
+        var suggested = Loc.Instance.Suggested();
+        foreach (var pack in suggested)
+            langs.Children.Add(LanguageRow(pack.Code, pack.Name, pack.EnglishName, Loc.Instance.Completeness(pack), s.Language == pack.Code));
+
+        var allRows = new List<(LanguagePack Pack, FrameworkElement Row)>();
+        var allList = new StackPanel();
+        foreach (var pack in Loc.Instance.Available.Except(suggested))
         {
-            var pct = Loc.Instance.Completeness(pack);
-            langs.Children.Add(LanguageRow(pack.Code, pack.Name, pack.EnglishName, pct, s.Language == pack.Code));
+            var row = LanguageRow(pack.Code, pack.Name, pack.EnglishName, Loc.Instance.Completeness(pack), s.Language == pack.Code);
+            allRows.Add((pack, row));
+            allList.Children.Add(row);
         }
+        var noMatch = new TextBlock { Style = R<Style>("Text.Secondary"), Text = T("No language matches."), Margin = new Thickness(0, 8, 0, 8), Visibility = Visibility.Collapsed };
+        allList.Children.Add(noMatch);
+        var filter = new TextBox { Tag = T("Find a language"), Margin = new Thickness(0, 4, 0, 8), MaxWidth = 360, HorizontalAlignment = HorizontalAlignment.Left, Width = 360 };
+        filter.TextChanged += (_, _) =>
+        {
+            var q = filter.Text.Trim();
+            var shown = 0;
+            foreach (var (pack, row) in allRows)
+            {
+                var hit = q.Length == 0 || pack.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase)
+                          || pack.EnglishName.Contains(q, StringComparison.OrdinalIgnoreCase) || pack.Code.StartsWith(q, StringComparison.OrdinalIgnoreCase);
+                row.Visibility = hit ? Visibility.Visible : Visibility.Collapsed;
+                if (hit) shown++;
+            }
+            noMatch.Visibility = shown == 0 ? Visibility.Visible : Visibility.Collapsed;
+        };
+        var allPanel = new StackPanel { Visibility = Visibility.Collapsed };
+        allPanel.Children.Add(filter);
+        allPanel.Children.Add(allList);
+        var chevron = new TextBlock { Style = R<Style>("Icon"), Text = "", FontSize = 10, Foreground = R<Brush>("Brush.AccentText"), Margin = new Thickness(8, 1, 0, 0),
+                                      RenderTransformOrigin = new Point(0.5, 0.5), RenderTransform = new RotateTransform(-90) };
+        var showAllContent = new StackPanel { Orientation = Orientation.Horizontal };
+        showAllContent.Children.Add(new TextBlock { Text = Loc.Instance.F("All languages ({0})", Loc.Instance.Available.Count), Foreground = R<Brush>("Brush.AccentText") });
+        showAllContent.Children.Add(chevron);
+        var showAll = new ToggleButton
+        {
+            Style = R<Style>("Button.Ghost"), Margin = new Thickness(-10, 6, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, Content = showAllContent
+        };
+        System.Windows.Automation.AutomationProperties.SetName(showAll, Loc.Instance.F("All languages ({0})", Loc.Instance.Available.Count));
+        showAll.Checked += (_, _) => { allPanel.Visibility = Visibility.Visible; ((RotateTransform)chevron.RenderTransform).Angle = 0; filter.Focus(); };
+        showAll.Unchecked += (_, _) => { allPanel.Visibility = Visibility.Collapsed; ((RotateTransform)chevron.RenderTransform).Angle = -90; };
+        langs.Children.Add(showAll);
+        langs.Children.Add(allPanel);
         var langButtons = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
         langButtons.Children.Add(SmallButton("Open languages folder", () =>
         {
@@ -216,8 +257,13 @@ public sealed class SettingsView : UserControl, INavigable
         opacity.ValueChanged += (_, _) => { s.OverlayOpacity = opacity.Value; Settings.Touch(); };
         var scale = new Slider { Minimum = 0.8, Maximum = 1.6, Width = 220, Value = s.OverlayScale };
         scale.ValueChanged += (_, _) => { s.OverlayScale = scale.Value; Settings.Touch(); };
+        var overlaySwitch = (CheckBox)Switch("Show the overlay panel", "A small always-on-top panel with the sensors you choose", s.OverlayEnabled, v => s.OverlayEnabled = v);
+        var overlaySets = new WrapPanel();
+        foreach (var preset in SensorPresets.OverlaySets)
+            overlaySets.Children.Add(SmallButton(SensorPresets.Title(preset), () => ApplyOverlayPreset(preset, overlaySwitch)));
         body.Children.Add(Section("overlay", "Overlay", "",
-            Switch("Show the overlay panel", "A small always-on-top panel with the sensors you choose", s.OverlayEnabled, v => s.OverlayEnabled = v),
+            overlaySwitch,
+            Row("Ready-made sets", "Replace the overlay sensors with a set picked for the task", overlaySets),
             Row("Opacity", null, opacity),
             Row("Size", null, scale),
             Switch("Click-through", "Mouse clicks pass through the panel to the window below", s.OverlayClickThrough, v => s.OverlayClickThrough = v),
@@ -543,6 +589,34 @@ public sealed class SettingsView : UserControl, INavigable
     }
 
     private readonly List<(WrapPanel Host, List<string> Ids)> _sensorLists = [];
+
+    // The set is resolved from the live sensors, so the hardware is read first if nothing else has done it yet.
+    private void ApplyOverlayPreset(SensorPreset preset, CheckBox overlaySwitch)
+    {
+        var hub = SensorHub.Shared;
+        var subscription = hub.Subscribe();
+        void Apply()
+        {
+            var ids = SensorPresets.Pick(preset, hub.Key).Select(r => r.Id).ToList();
+            subscription.Dispose();
+            if (ids.Count == 0) return;
+            Settings.Current.OverlaySensors = ids;
+            overlaySwitch.IsChecked = true;
+            Settings.Touch();
+            RefreshSensorLists();
+        }
+        if (hub.State == SensorHubState.Ready && hub.Devices.Count > 0)
+        {
+            Apply();
+            return;
+        }
+        void OnDevices()
+        {
+            hub.DevicesChanged -= OnDevices;
+            Dispatcher.BeginInvoke(Apply);
+        }
+        hub.DevicesChanged += OnDevices;
+    }
 
     private void RefreshSensorLists()
     {

@@ -98,7 +98,7 @@ public sealed class PowerProvider : IInfoProvider
     }
 
     // BatteryStaticData.Chemistry is a four-character code such as "LION" packed into a ULONG.
-    private static string? Chemistry(long? code)
+    internal static string? Chemistry(long? code)
     {
         if (code is not > 0) return null;
         var text = Encoding.ASCII.GetString(BitConverter.GetBytes((uint)code.Value)).TrimEnd('\0', ' ').ToUpperInvariant();
